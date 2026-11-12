@@ -1,0 +1,2718 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UsUaly (유즐리) — Co-Ride Wrapped · Pleos Connect OS Automotive HMI</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-alaskawhite: #F4F5F7;
+      --bg-warm-ivory: #FAF8F5;
+      --bg-card: #FFFFFF;
+      --border-soft: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --text-ink: #0F172A;
+      --text-slate: #475569;
+      --hmg-navy: #002C5F;
+      --hmg-cyan: #0082B3;
+      --usualy-coral: #D97757;
+      --usualy-sand: #E6DDD3;
+      --ambient-color: rgba(0, 130, 179, 0.22);
+      --ambient-solid: #0082B3;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: 'Pretendard', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-alaskawhite);
+      background-image:
+        radial-gradient(circle at 12% 0%, rgba(217, 119, 87, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 88% 8%, rgba(0, 44, 95, 0.06) 0%, transparent 45%);
+      color: var(--text-ink);
+      margin: 0;
+      overflow-x: hidden;
+      letter-spacing: -0.02em;
+    }
+
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.03em;
+    }
+
+    /* Ambient Light Dynamic Halo on Display Frame */
+    .daylight-cockpit-frame {
+      background: var(--bg-warm-ivory);
+      border: 2px solid #CBD5E1;
+      box-shadow:
+        0 24px 60px -12px rgba(15, 23, 42, 0.12),
+        0 0 36px 2px var(--ambient-color),
+        inset 0 1px 0 #FFFFFF;
+      transition: box-shadow 0.5s ease, background-color 0.4s ease;
+    }
+
+    /* Adaptive Driving Mode Dark Glare-Free Override */
+    .driving-night-cockpit {
+      background: #070B12 !important;
+      color: #F8FAFC !important;
+      border-color: #1E293B !important;
+    }
+
+    .daylight-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+      transition: all 0.25s ease;
+    }
+
+    .daylight-card-elevated {
+      background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%);
+      border: 1px solid #CBD5E1;
+      box-shadow: 0 10px 30px -8px rgba(0, 44, 95, 0.08);
+    }
+
+    /* High-Contrast Daylight / Driving Telemetry Card (WCAG >= 7:1) */
+    .do-daylight-surface {
+      background: #FFFFFF;
+      border: 2px solid #002C5F;
+      box-shadow: 0 12px 32px -10px rgba(0, 44, 95, 0.12);
+      transition: all 0.3s ease;
+    }
+    .do-driving-dark-surface {
+      background: #0B111E !important;
+      border: 2.5px solid #38BDF8 !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65) !important;
+    }
+
+    /* Soft Pill Badges */
+    .pill-navy {
+      background: #EEF4FA;
+      color: #002C5F;
+      border: 1px solid rgba(0, 44, 95, 0.18);
+    }
+    .pill-coral {
+      background: #FDF2EE;
+      color: #C25938;
+      border: 1px solid #F7D4C8;
+    }
+    .pill-cyan {
+      background: #E0F2FE;
+      color: #0369A1;
+      border: 1px solid #BAE6FD;
+    }
+    .pill-emerald {
+      background: #ECFDF5;
+      color: #047857;
+      border: 1px solid #A7F3D0;
+    }
+    .pill-amber {
+      background: #FFFBEB;
+      color: #B45309;
+      border: 1px solid #FDE68A;
+    }
+
+    /* Automotive Touch Target Buttons (Min 56px height in Driving) */
+    .btn-primary-day {
+      background: #002C5F;
+      color: #FFFFFF;
+      font-weight: 700;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 12px rgba(0, 44, 95, 0.18);
+    }
+    .btn-primary-day:hover:not(:disabled) {
+      background: #003E85;
+      transform: translateY(-1px);
+    }
+    .btn-primary-day:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary-day {
+      background: #FFFFFF;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      font-weight: 600;
+      transition: all 0.18s ease;
+    }
+    .btn-secondary-day:hover:not(:disabled) {
+      background: #F1F5F9;
+      border-color: #94A3B8;
+      color: #0F172A;
+    }
+    .btn-secondary-day:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-accent-day {
+      background: linear-gradient(135deg, #D97757 0%, #002C5F 100%);
+      color: #FFFFFF;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(217, 119, 87, 0.25);
+      transition: all 0.18s ease;
+    }
+    .btn-accent-day:hover:not(:disabled) {
+      filter: brightness(1.07);
+      transform: translateY(-1px);
+    }
+
+    .boarding-pass-daylight {
+      background: linear-gradient(165deg, #FFFFFF 0%, #FAF8F5 65%, #EFF6FF 100%);
+      border: 1.5px solid #CBD5E1;
+      box-shadow: 0 20px 40px -15px rgba(0, 44, 95, 0.15);
+    }
+
+    /* Digital Twin Door Wing Animation */
+    .door-wing {
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), stroke 0.3s ease;
+      transform-box: fill-box;
+    }
+    .door-left-open {
+      transform: rotate(-32deg);
+      transform-origin: top left;
+    }
+    .door-right-open {
+      transform: rotate(32deg);
+      transform-origin: top right;
+    }
+
+    .custom-scroll::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.92); }
+    }
+    .live-dot {
+      animation: breathe 2.2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-[#002C5F] selection:text-white">
+
+  <!-- Top Header Bar: UsUaly (US + USUALLY) Brand Identity -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-slate-200 px-5 py-2.5 shadow-sm">
+    <div class="max-w-[1440px] mx-auto flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand Identity -->
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#002C5F] to-[#D97757] flex items-center justify-center text-white font-extrabold text-sm shadow-sm">
+          Us
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-mono-num font-bold uppercase tracking-[0.18em] text-[#002C5F]">HYUNDAI PLEOS CONNECT</span>
+            <span class="text-slate-300">/</span>
+            <span class="text-[10px] font-mono-num font-bold text-[#D97757] bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">UsUaly (유즐리)</span>
+            <span class="text-[10px] font-mono-num font-semibold text-[#0082B3] bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200">SDK v2.3.2</span>
+          </div>
+          <h1 class="text-base font-extrabold tracking-tight text-slate-900 leading-none mt-1">
+            UsUaly · Co-Ride Wrapped <span class="font-medium text-xs text-slate-500 ml-1">“평범한 우리의 일상이 특별한 기록이 된다 (US + USUALLY)”</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Center: View Mode Switcher -->
+      <nav class="flex flex-wrap items-center bg-slate-100 p-1 rounded-full border border-slate-200/80" aria-label="화면 모드 전환">
+        <button id="tab-1win" type="button" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all bg-[#002C5F] text-white shadow-sm">
+          1-Window (주행/컴팩트)
+        </button>
+        <button id="tab-2win" type="button" class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+          2-Window (연간 리포트)
+        </button>
+        <button id="tab-endtrip" type="button" class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+          🏁 오늘의 운행 종료 & 마일리지
+        </button>
+        <button id="tab-mobile" type="button" class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+          모바일 컴패니언 (QR/공유)
+        </button>
+        <button id="tab-arch" type="button" class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+          SDK & 궤적 검증 로그
+        </button>
+      </nav>
+
+      <!-- Right: Action Triggers -->
+      <div class="flex items-center gap-2">
+        <button id="btn-open-insta-modal" type="button" class="px-3.5 py-2 rounded-full text-xs font-bold bg-[#FDF2EE] hover:bg-orange-100 text-[#C25938] border border-[#F7D4C8] transition flex items-center gap-1.5">
+          <span>📱 9:16 인스타 스토리 실물 프리뷰</span>
+        </button>
+        <button id="btn-trigger-end-trip" type="button" class="px-3.5 py-2 rounded-full text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition flex items-center gap-1.5">
+          <span>🛑 오늘의 운행 종료 (탑승 종료)</span>
+        </button>
+        <button id="btn-run-demo" type="button" class="px-3.5 py-2 rounded-full text-xs btn-accent-day flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-300 live-dot"></span>
+          2차 본선 시연 시나리오 자동 실행
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Gleo AI Voice & Welcome Back Reunion Briefing Strip -->
+  <div id="gleo-banner" class="bg-gradient-to-r from-orange-50/70 via-white to-sky-50/70 border-b border-slate-200 px-5 py-2">
+    <div class="max-w-[1440px] mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full pill-coral shrink-0">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#D97757] live-dot"></span>
+          <span class="text-[10px] font-mono-num font-bold tracking-wider uppercase">Gleo AI · UsUaly Memory</span>
+        </div>
+        <p id="gleo-response-text" class="text-xs font-semibold text-slate-800 truncate">
+          "박영희 님과 45일 만의 반가운 재회네요! 마지막 동승은 9월 28일 해운대 드라이브(68km)였습니다."
+        </p>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button id="gleo-btn-stats" type="button" class="px-3 py-1 rounded-full text-[11px] font-mono-num btn-secondary-day">
+          🎙️ GET_TOP_CORIDER_STATS
+        </button>
+        <button id="gleo-btn-tag" type="button" class="px-3 py-1 rounded-full text-[11px] font-mono-num btn-secondary-day">
+          🏷️ TAG_CURRENT_PASSENGER
+        </button>
+        <button id="gleo-btn-route" type="button" class="px-3 py-1 rounded-full text-[11px] font-mono-num btn-secondary-day">
+          🧭 START_MEMORY_ROUTE
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-[1440px] w-full mx-auto px-5 py-4 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+    <!-- Left Column: Pleos Connect Panoramic Display (9 Cols on XL) -->
+    <section class="lg:col-span-8 xl:col-span-9 flex flex-col">
+      <div id="avn-cockpit-container" class="daylight-cockpit-frame rounded-[24px] overflow-hidden flex flex-col">
+
+        <!-- Pleos OS Top Status & Ambient Sync Bar -->
+        <div class="bg-white/95 text-slate-800 px-6 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-3">
+            <span class="font-mono-num font-extrabold text-[11px] tracking-[0.15em] text-[#002C5F]">PLEOS CONNECT OS</span>
+            <span class="text-slate-300">|</span>
+            <span id="avn-window-mode-indicator" class="text-[11px] font-semibold text-slate-600">
+              Portrait 1-Window Mode (UsUaly Warm Daylight)
+            </span>
+            <span id="ambient-mood-pill" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full pill-cyan flex items-center gap-1.5">
+              <span id="ambient-color-dot" class="w-2 h-2 rounded-full bg-[#0082B3]"></span>
+              <span id="ambient-mood-text">앰비언트: 오션 시안 · 공조 21.5°C</span>
+            </span>
+          </div>
+          <div class="flex items-center gap-2.5 font-mono-num text-[11px]">
+            <!-- Offline Queue Status Badge -->
+            <span id="avn-offline-queue-badge" class="hidden px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 font-bold text-[10px]">
+              🚇 Room 캐시 대기: <span id="offline-queue-count">0</span>건
+            </span>
+            <!-- Dual Mileage Live Header Pill -->
+            <span class="px-2.5 py-0.5 rounded-full pill-amber font-bold text-[11px]">
+              🪙 운전자 <span id="header-driver-pts">14,550</span>P · 동승자 <span id="header-mate-pts">3,420</span>P
+            </span>
+            <span id="avn-gear-indicator" class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#002C5F] text-white">
+              GEAR · P
+            </span>
+            <span id="avn-gps-status" class="text-[#0082B3] font-semibold">📍 FusedLocation 활성</span>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- VIEW 1: 1-Window Mode (Left Digital Twin & Map + Right 1-Window App)      -->
+        <!-- ========================================================================= -->
+        <div id="view-1win" class="grid grid-cols-1 md:grid-cols-12 min-h-[620px] divide-y md:divide-y-0 md:divide-x divide-slate-200">
+
+          <!-- Left Split Screen (5 Cols): Real-Time 2D Top-Down Vehicle Digital Twin + Trajectory Map -->
+          <div class="md:col-span-5 bg-[#F1F5F9] text-slate-900 p-5 flex flex-col justify-between relative">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono-num font-bold uppercase tracking-[0.14em] text-slate-500">DIGITAL TWIN · SEAT & DOOR SDK</span>
+                <span id="map-match-count-badge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full pill-emerald">
+                  동승 세션 1명 활성
+                </span>
+              </div>
+
+              <!-- Real-Time Interactive 2D Top-Down Vehicle Cabin Digital Twin -->
+              <div class="mt-2.5 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-extrabold text-[#002C5F]">🚘 실시간 실내 디지털 트윈 (클릭하여 탑승/벨트 제어)</span>
+                  <span id="twin-door-status-label" class="text-[10px] font-mono-num font-semibold text-emerald-700">DOORS CLOSED</span>
+                </div>
+
+                <div class="grid grid-cols-12 gap-3 items-center">
+                  <!-- Top-Down Car Chassis SVG -->
+                  <div class="col-span-7 flex justify-center">
+                    <svg viewBox="0 0 220 260" class="w-full max-w-[185px] h-auto select-none">
+                      <defs>
+                        <radialGradient id="twinAmbientGlow" cx="50%" cy="50%" r="55%">
+                          <stop offset="0%" id="svg-ambient-stop1" stop-color="#0082B3" stop-opacity="0.28" />
+                          <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+                        </radialGradient>
+                      </defs>
+                      <!-- Ambient Cabin Halo -->
+                      <rect x="22" y="18" width="176" height="224" rx="44" fill="url(#twinAmbientGlow)" />
+                      <!-- Vehicle Outer Body -->
+                      <rect x="32" y="20" width="156" height="220" rx="38" fill="#F8FAFC" stroke="#002C5F" stroke-width="3" />
+                      <!-- Windshield & Rear Glass -->
+                      <path d="M 48 56 Q 110 40 172 56 L 164 78 L 56 78 Z" fill="#E2E8F0" stroke="#94A3B8" stroke-width="1.5" />
+                      <path d="M 54 205 L 166 205 L 172 222 Q 110 232 48 222 Z" fill="#E2E8F0" stroke="#94A3B8" stroke-width="1.5" />
+
+                      <!-- Animated Doors (Left Front, Right Front, Left Rear, Right Rear) -->
+                      <line id="svg-door-fl" x1="32" y1="78" x2="32" y2="132" stroke="#002C5F" stroke-width="5" stroke-linecap="round" class="door-wing" />
+                      <line id="svg-door-fr" x1="188" y1="78" x2="188" y2="132" stroke="#0082B3" stroke-width="5" stroke-linecap="round" class="door-wing" />
+                      <line id="svg-door-rl" x1="32" y1="142" x2="32" y2="195" stroke="#002C5F" stroke-width="5" stroke-linecap="round" class="door-wing" />
+                      <line id="svg-door-rr" x1="188" y1="142" x2="188" y2="195" stroke="#0082B3" stroke-width="5" stroke-linecap="round" class="door-wing" />
+
+                      <!-- 1st Row Left: Driver Seat (Always Occupied) -->
+                      <g class="cursor-pointer">
+                        <rect x="52" y="86" width="48" height="46" rx="10" fill="#002C5F" />
+                        <text x="76" y="106" text-anchor="middle" fill="#FFFFFF" font-size="9" font-weight="800">운전자</text>
+                        <text x="76" y="120" text-anchor="middle" fill="#BAE6FD" font-size="8" font-family="JetBrains Mono">BELT ON</text>
+                      </g>
+
+                      <!-- 1st Row Right: Front Passenger Seat (Interactive) -->
+                      <g id="twin-seat-1r" class="cursor-pointer">
+                        <rect id="twin-rect-1r" x="120" y="86" width="48" height="46" rx="10" fill="#0082B3" stroke="#002C5F" stroke-width="2" />
+                        <line id="twin-belt-1r" x1="124" y1="90" x2="164" y2="128" stroke="#FDE047" stroke-width="2.5" stroke-linecap="round" />
+                        <text id="twin-name-1r" x="144" y="105" text-anchor="middle" fill="#FFFFFF" font-size="9" font-weight="800">김철수</text>
+                        <text id="twin-delta-1r" x="144" y="120" text-anchor="middle" fill="#E0F2FE" font-size="8" font-family="JetBrains Mono">+18.4km</text>
+                      </g>
+
+                      <!-- 2nd Row Left Seat (Interactive) -->
+                      <g id="twin-seat-2l" class="cursor-pointer">
+                        <rect id="twin-rect-2l" x="52" y="146" width="48" height="46" rx="10" fill="#F1F5F9" stroke="#94A3B8" stroke-width="2" />
+                        <line id="twin-belt-2l" x1="56" y1="150" x2="96" y2="188" stroke="#FDE047" stroke-width="2.5" stroke-linecap="round" class="hidden" />
+                        <text id="twin-name-2l" x="76" y="166" text-anchor="middle" fill="#64748B" font-size="9" font-weight="800">2열 좌(공석)</text>
+                        <text id="twin-delta-2l" x="76" y="180" text-anchor="middle" fill="#94A3B8" font-size="8" font-family="JetBrains Mono">0.0km</text>
+                      </g>
+
+                      <!-- 2nd Row Right Seat (Interactive) -->
+                      <g id="twin-seat-2r" class="cursor-pointer">
+                        <rect id="twin-rect-2r" x="120" y="146" width="48" height="46" rx="10" fill="#F1F5F9" stroke="#94A3B8" stroke-width="2" />
+                        <line id="twin-belt-2r" x1="124" y1="150" x2="164" y2="188" stroke="#FDE047" stroke-width="2.5" stroke-linecap="round" class="hidden" />
+                        <text id="twin-name-2r" x="144" y="166" text-anchor="middle" fill="#64748B" font-size="9" font-weight="800">2열 우(공석)</text>
+                        <text id="twin-delta-2r" x="144" y="180" text-anchor="middle" fill="#94A3B8" font-size="8" font-family="JetBrains Mono">0.0km</text>
+                      </g>
+                    </svg>
+                  </div>
+
+                  <!-- Right Side of Twin: Per-Seat Independent Delta & Door Controls -->
+                  <div class="col-span-5 space-y-2 text-[11px]">
+                    <div class="p-2 rounded-xl bg-slate-50 border border-slate-200">
+                      <span class="text-[10px] font-bold text-slate-500 block">좌석별 독립 차분 (ΔD = D - D_start)</span>
+                      <p id="twin-seat-breakdown" class="text-[11px] font-mono-num font-bold text-[#002C5F] mt-0.5 leading-snug">
+                        1R 김철수: +18.4km<br>2L 공석 · 2R 공석
+                      </p>
+                    </div>
+                    <button id="btn-toggle-door" type="button" class="w-full py-2 px-2.5 rounded-xl btn-secondary-day text-[11px] font-bold">
+                      🚪 도어 열림/닫힘 테스트
+                    </button>
+                    <button id="btn-rest-stop-test" type="button" class="w-full py-2 px-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-bold transition">
+                      ☕ 휴게소 임시하차 (3분 디바운싱)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compact Trajectory Map & Route Info -->
+            <div class="my-3 rounded-2xl bg-[#E8EEF5] border border-slate-300/80 p-3 relative overflow-hidden shadow-inner">
+              <div class="flex items-center justify-between text-[10px] font-mono-num text-slate-600 mb-1.5 font-semibold">
+                <span id="navi-active-dest-title" class="font-bold text-slate-900 truncate">목적지: 경주 보문관광단지 (해안도로 경유)</span>
+                <span id="navi-active-dest-sub" class="text-[#0082B3] shrink-0">잔여 34.2 km</span>
+              </div>
+
+              <svg viewBox="0 0 320 130" class="w-full h-28 rounded-xl bg-[#F4F7FA] border border-slate-200">
+                <defs>
+                  <linearGradient id="routeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#0082B3" />
+                    <stop offset="100%" stop-color="#002C5F" />
+                  </linearGradient>
+                  <radialGradient id="carGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="rgba(0, 130, 179, 0.35)" />
+                    <stop offset="100%" stop-color="rgba(0, 130, 179, 0)" />
+                  </radialGradient>
+                </defs>
+                <path d="M 235 0 Q 255 55 225 95 T 262 130 L 320 130 L 320 0 Z" fill="#BAE6FD" opacity="0.55" />
+                <path d="M 42 108 Q 112 92 156 68 T 262 24" fill="none" stroke="url(#routeGrad)" stroke-width="4" stroke-linecap="round" />
+                <circle cx="42" cy="108" r="4.5" fill="#10B981" stroke="#FFFFFF" stroke-width="1.5" />
+                <text x="52" y="112" fill="#0F172A" font-size="8.5" font-weight="700">1차 탑승(T=0s)</text>
+                <circle cx="115" cy="88" r="4.5" fill="#0082B3" stroke="#FFFFFF" stroke-width="1.5" />
+                <text x="124" y="92" fill="#002C5F" font-size="8.5" font-weight="700">2차 검증(≥200m)</text>
+                <circle id="svg-car-glow" cx="195" cy="52" r="14" fill="url(#carGlow)" />
+                <circle id="svg-car-dot" cx="195" cy="52" r="6" fill="#002C5F" stroke="#FFFFFF" stroke-width="2" />
+                <circle cx="262" cy="24" r="5" fill="#F43F5E" stroke="#FFFFFF" stroke-width="1.5" />
+              </svg>
+            </div>
+
+            <!-- Window Gesture Bar -->
+            <div class="pt-2 border-t border-slate-200 flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-600">Pleos Window Bar (분할 제스처)</span>
+              <button id="btn-expand-to-2win" type="button" class="px-3.5 py-1.5 rounded-full text-xs btn-secondary-day shadow-sm">
+                2-Window 와이드 뷰로 확장 ↗
+              </button>
+            </div>
+          </div>
+
+          <!-- Right 1-Window App Container (7 Cols): Adaptive Glare-Free Driving / Warm Parking -->
+          <div id="onewin-right-panel" class="md:col-span-7 bg-[#FAF8F5] p-6 flex flex-col justify-between transition-colors duration-300">
+            <!-- Header -->
+            <div class="flex items-start justify-between border-b border-slate-200/80 pb-3.5">
+              <div>
+                <span id="onewin-mode-tag" class="text-[10px] font-mono-num font-bold uppercase tracking-[0.15em] px-2.5 py-0.5 rounded-full pill-navy">
+                  PARKING · 컴팩트 요약 뷰
+                </span>
+                <h2 id="onewin-main-heading" class="text-xl font-extrabold text-slate-900 mt-1.5 tracking-tight">
+                  UsUaly Co-Ride 라이브 & 랭킹
+                </h2>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] font-mono-num text-slate-500 block">WCAG ≥ 7:1 · 56px 터치타겟</span>
+                <span id="active-seats-summary" class="text-xs font-bold text-[#0082B3] mt-0.5 block">
+                  조수석 착석 + 안전벨트 체결
+                </span>
+              </div>
+            </div>
+
+            <!-- Reunion Toast / Rest Stop Debounce Banner -->
+            <div id="reunion-toast-card" class="mt-3 p-3 rounded-2xl bg-gradient-to-r from-[#FDF2EE] to-amber-50 border border-[#F7D4C8] flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="text-base">✨</span>
+                <div>
+                  <span id="reunion-toast-title" class="text-xs font-extrabold text-[#C25938] block">
+                    김철수 님과 3일 만의 반가운 동행! (올해 28번째 함께 달리는 날)
+                  </span>
+                  <span id="reunion-toast-sub" class="text-[11px] text-slate-600">
+                    동승자 맞춤 ‘오션 시안’ 앰비언트 라이트와 선호 공조 온도(21.5°C)가 자동 적용되었습니다.
+                  </span>
+                </div>
+              </div>
+              <span id="debounce-timer-badge" class="hidden px-2.5 py-1 rounded-full bg-amber-500 text-white font-mono-num font-bold text-xs shrink-0">
+                ⏱️ 02:59
+              </span>
+            </div>
+
+            <!-- Live Co-Riding Session Card (Switches to Dark Glare-Free in Gear D) -->
+            <div id="live-telemetry-card" class="my-3.5 p-5 rounded-2xl do-daylight-surface">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 live-dot"></span>
+                  <span id="live-card-status-title" class="text-sm font-extrabold text-[#002C5F]">
+                    동승 메이트 [대학 동료] 김철수님과 주행 기록 중
+                  </span>
+                </div>
+                <span id="live-card-seat-chip" class="text-[10px] font-mono-num font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                  SeatArea: ROW_1_RIGHT
+                </span>
+              </div>
+
+              <!-- Oversized Glanceable Telemetry (1~2초 시인성 극대화) -->
+              <div class="grid grid-cols-3 gap-4 my-4 py-3.5 border-y border-slate-200/60">
+                <div>
+                  <span class="text-xs font-semibold text-slate-500 block">순수 동승 거리 (ΔD)</span>
+                  <p id="live-card-delta-d" class="text-3xl sm:text-4xl font-extrabold text-slate-900 font-mono-num mt-1 tracking-tight">
+                    +18.4 km
+                  </p>
+                </div>
+                <div>
+                  <span class="text-xs font-semibold text-slate-500 block">순수 동승 시간 (ΔT)</span>
+                  <p id="live-card-delta-t" class="text-3xl sm:text-4xl font-extrabold text-[#0082B3] font-mono-num mt-1 tracking-tight">
+                    +26 분
+                  </p>
+                </div>
+                <div class="bg-amber-500/10 rounded-xl p-2.5 border border-amber-500/30">
+                  <span class="text-[11px] font-bold text-amber-600 block">🪙 동시 적립 마일리지</span>
+                  <p id="live-card-dual-points" class="text-xl sm:text-2xl font-extrabold text-amber-600 font-mono-num mt-0.5">
+                    각 +184 P
+                  </p>
+                  <span class="text-[10px] text-amber-600/90 block">운전자·동승자 10P/km</span>
+                </div>
+              </div>
+
+              <!-- Milestone Progress Bar -->
+              <div>
+                <div class="flex items-center justify-between text-xs mb-1.5">
+                  <span id="live-milestone-label" class="font-bold text-slate-600">다음 마일스톤 · 3,000km ‘인생 로드메이트’</span>
+                  <span id="live-milestone-pct" class="font-mono-num text-[#0082B3] font-bold">1,858.4 / 3,000 km (61.9%)</span>
+                </div>
+                <div class="w-full h-3 rounded-full bg-slate-200/80 overflow-hidden border border-slate-300/60">
+                  <div id="live-milestone-bar" class="h-full bg-gradient-to-r from-[#002C5F] via-[#0082B3] to-[#D97757] transition-all duration-500" style="width: 62%"></div>
+                </div>
+              </div>
+
+              <!-- Unregistered Passenger One-Touch Preset Bar (Min 56px Touch Targets) -->
+              <div id="unregistered-preset-box" class="hidden mt-4 pt-4 border-t border-amber-300 bg-amber-50/90 -mx-5 -mb-5 p-4 rounded-b-2xl">
+                <p class="text-xs text-amber-950 font-extrabold mb-2.5">
+                  ⚠️ 미등록 동승자가 감지되었습니다. 56px 대형 원터치 프리셋(최대 3개)으로 즉시 태깅하세요:
+                </p>
+                <div class="grid grid-cols-3 gap-2.5">
+                  <button type="button" data-preset-mate="p3" class="preset-tag-btn min-h-[56px] px-3 rounded-xl bg-white hover:bg-amber-100 text-slate-900 border-2 border-amber-400 text-xs font-extrabold shadow-sm">
+                    👤 이민수 (동기)
+                  </button>
+                  <button type="button" data-preset-mate="p4" class="preset-tag-btn min-h-[56px] px-3 rounded-xl bg-white hover:bg-amber-100 text-slate-900 border-2 border-amber-400 text-xs font-extrabold shadow-sm">
+                    👤 최지훈 (연구실)
+                  </button>
+                  <button type="button" data-preset-mate="p5" class="preset-tag-btn min-h-[56px] px-3 rounded-xl bg-white hover:bg-amber-100 text-slate-900 border-2 border-amber-400 text-xs font-extrabold shadow-sm">
+                    👤 가족 (어머니)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Driving Mode DO Lock Notice (Shown when Gear == D) -->
+            <div id="driving-do-lock-panel" class="hidden my-2 p-5 rounded-2xl bg-slate-900 border-2 border-sky-400/60 text-center text-white">
+              <p class="text-sm font-extrabold text-sky-300">
+                🛡️ CarUxRestrictions 주행 안전 제한 (Distraction Optimization) 및 다크 방현 모드 작동 중
+              </p>
+              <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                주행 중 운전자의 눈부심과 시선 분산을 막기 위해 다크 고대비 모드로 자동 전환되었으며, 하위 스크롤 리스트와 2-Window 확장이 잠겼습니다. <strong>기어 P(정차)</strong>로 전환하면 즉시 해제됩니다.
+              </p>
+            </div>
+
+            <!-- Parking Mode Compact TOP 5 Leaderboard -->
+            <div id="parking-compact-list-panel" class="flex-1 flex flex-col justify-between">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-extrabold text-slate-800">올해의 동승자 TOP 5 랭킹</span>
+                <div class="flex items-center gap-1 bg-slate-200/80 p-0.5 rounded-full">
+                  <button id="btn-sort-dist-1w" type="button" class="px-3 py-1 rounded-full text-[11px] font-bold bg-[#002C5F] text-white shadow-sm">
+                    최장 거리 (ΣΔD)
+                  </button>
+                  <button id="btn-sort-time-1w" type="button" class="px-3 py-1 rounded-full text-[11px] font-semibold text-slate-600 hover:text-slate-900">
+                    최장 시간 (ΣΔT)
+                  </button>
+                </div>
+              </div>
+
+              <div id="compact-ranking-list" class="space-y-1.5 max-h-40 overflow-y-auto custom-scroll pr-1">
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 mt-3.5 pt-3.5 border-t border-slate-200">
+                <button id="btn-open-wide-report" type="button" class="py-3 px-4 rounded-xl btn-primary-day text-xs">
+                  📊 연간 리포트 와이드 뷰 열기 (2-Window)
+                </button>
+                <button id="btn-open-qr-share" type="button" class="py-3 px-4 rounded-xl btn-secondary-day text-xs">
+                  🎫 QR 모빌리티 보딩패스 공유
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- VIEW 2: 2-Window Landscape Wide Report View (Bright Editorial Wrapped)    -->
+        <!-- ========================================================================= -->
+        <div id="view-2win" class="hidden grid grid-cols-1 md:grid-cols-12 min-h-[620px] divide-y md:divide-y-0 md:divide-x divide-slate-200">
+
+          <!-- Left Column (5 Cols): Leaderboard & Milestone Badges -->
+          <div class="md:col-span-5 bg-[#F1F5F9] p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono-num font-bold uppercase tracking-[0.18em] text-[#D97757]">2026 USUALY · CO-RIDE WRAPPED</span>
+                <div class="flex items-center gap-1 bg-slate-200/90 p-0.5 rounded-full">
+                  <button id="btn-sort-dist-2w" type="button" class="px-3 py-1 rounded-full text-[11px] font-bold bg-[#002C5F] text-white shadow-sm">
+                    거리 부문
+                  </button>
+                  <button id="btn-sort-time-2w" type="button" class="px-3 py-1 rounded-full text-[11px] font-semibold text-slate-600 hover:text-slate-900">
+                    시간 부문
+                  </button>
+                </div>
+              </div>
+              <h3 class="text-xl font-extrabold text-slate-900 mt-1.5 tracking-tight">올해 나의 소울 패신저 TOP 5</h3>
+              <p class="text-xs text-slate-600 mt-0.5">동승자를 클릭하면 우측 대화면에 연간 스토리텔링과 코스 재주행이 펼쳐집니다.</p>
+
+              <div id="wide-ranking-list" class="space-y-2 mt-4">
+              </div>
+            </div>
+
+            <!-- Co-Ride Milestone Collection -->
+            <div class="mt-6 pt-4 border-t border-slate-200">
+              <div class="flex items-center justify-between mb-2.5">
+                <span class="text-xs font-extrabold text-slate-800">🏆 동승 마일리지 마일스톤 도감</span>
+                <span id="selected-mate-milestone-count" class="text-[11px] font-mono-num font-bold text-[#0082B3]">3 / 4 해금됨</span>
+              </div>
+              <div id="milestone-badge-grid" class="grid grid-cols-4 gap-2">
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column (7 Cols): Bright Editorial Wrapped Card -->
+          <div class="md:col-span-7 bg-[#FAF8F5] p-6 flex flex-col justify-between">
+            <div>
+              <!-- Hero Story Card -->
+              <div class="p-6 rounded-2xl daylight-card-elevated relative overflow-hidden">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span id="detail-persona-badge" class="text-xs font-bold px-3 py-1 rounded-full pill-coral">
+                    🏅 주말 장거리 여행 파트너
+                  </span>
+                  <span id="detail-seat-pref" class="text-[11px] font-mono-num text-slate-500">
+                    주요 착석: 조수석 (ROW_1_RIGHT)
+                  </span>
+                </div>
+
+                <h4 id="detail-mate-headline" class="text-xl sm:text-2xl font-extrabold text-[#002C5F] mt-4 leading-snug tracking-tight">
+                  올해 김철수 님과 함께 달린 1,858.4km는 서울-부산을 2.3회 왕복한 거리입니다!
+                </h4>
+                <p id="detail-mate-subcopy" class="text-xs text-slate-600 mt-2 leading-relaxed">
+                  차 안에서 총 <strong>31.9시간(영화 16편 분량)</strong>의 대화를 나눴습니다. 주행 패턴 군집화 결과 주말 오전·오후 장거리 비중이 74%로 가장 높습니다.
+                </p>
+
+                <!-- 3-Column KPI Readout -->
+                <div class="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-slate-200">
+                  <div class="bg-white rounded-xl p-3 border border-slate-200/80">
+                    <span class="text-[10px] font-mono-num uppercase tracking-wider text-slate-500 block">누적 동승 거리 (ΣΔD)</span>
+                    <strong id="detail-stat-dist" class="text-lg font-extrabold text-[#002C5F] font-mono-num mt-0.5 block">1,858.4 km</strong>
+                  </div>
+                  <div class="bg-white rounded-xl p-3 border border-slate-200/80">
+                    <span class="text-[10px] font-mono-num uppercase tracking-wider text-slate-500 block">누적 동승 시간 (ΣΔT)</span>
+                    <strong id="detail-stat-time" class="text-lg font-extrabold text-[#0082B3] font-mono-num mt-0.5 block">31.9 시간</strong>
+                  </div>
+                  <div class="bg-white rounded-xl p-3 border border-slate-200/80">
+                    <span class="text-[10px] font-mono-num uppercase tracking-wider text-slate-500 block">함께한 총 트립 수</span>
+                    <strong id="detail-stat-trips" class="text-lg font-extrabold text-slate-900 font-mono-num mt-0.5 block">28 회</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Best Trip Memory & Re-Drive Action -->
+              <div class="mt-4 p-5 rounded-2xl daylight-card">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <span class="text-[10px] font-mono-num font-bold uppercase tracking-[0.15em] text-[#0082B3]">BEST TRIP MEMORY · 올해 가장 길었던 로드트립</span>
+                    <h5 id="detail-best-trip-title" class="text-base font-extrabold text-slate-900 mt-1">
+                      10월 24일 울산 → 경주 해안도로 드라이브 (94.0 km)
+                    </h5>
+                  </div>
+                  <span id="detail-poi-source-tag" class="text-[10px] font-mono-num font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                    1순위: NaviHelper.getDestinationInfo()
+                  </span>
+                </div>
+                <p id="detail-best-trip-waypoints" class="text-xs text-slate-600 mt-1.5">
+                  경유지(RequestWaypointInfo): 울산 태화강 국가정원 → 정자해변 → 감포 해안도로 → 경주 보문호
+                </p>
+
+                <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+                  <button id="btn-redrive-route" type="button" class="px-4 py-2.5 rounded-xl btn-primary-day text-xs flex items-center gap-2">
+                    <span>🧭 그날의 코스로 길안내 시작 (NaviHelper 연동)</span>
+                  </button>
+                  <span id="redrive-feedback-msg" class="text-xs text-[#0082B3] font-bold"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- QR Boarding Pass Handoff Bar -->
+            <div class="mt-4 p-4 rounded-2xl daylight-card flex items-center justify-between gap-4">
+              <div class="flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-slate-900 p-1.5 shrink-0 flex items-center justify-center shadow-sm">
+                  <svg viewBox="0 0 36 36" class="w-full h-full fill-white">
+                    <rect x="2" y="2" width="10" height="10" fill="none" stroke="#FFF" stroke-width="2.5"/>
+                    <rect x="5" y="5" width="4" height="4"/>
+                    <rect x="24" y="2" width="10" height="10" fill="none" stroke="#FFF" stroke-width="2.5"/>
+                    <rect x="27" y="5" width="4" height="4"/>
+                    <rect x="2" y="24" width="10" height="10" fill="none" stroke="#FFF" stroke-width="2.5"/>
+                    <rect x="5" y="27" width="4" height="4"/>
+                    <rect x="15" y="4" width="3" height="3"/>
+                    <rect x="18" y="10" width="3" height="6"/>
+                    <rect x="14" y="16" width="6" height="3"/>
+                    <rect x="22" y="18" width="4" height="4"/>
+                    <rect x="15" y="24" width="4" height="8"/>
+                    <rect x="26" y="26" width="6" height="6"/>
+                  </svg>
+                </div>
+                <div>
+                  <span class="text-xs font-extrabold text-slate-900 block">공유용 모빌리티 보딩패스 발급 (QR Share Ticket)</span>
+                  <p class="text-[11px] text-slate-600 mt-0.5">
+                    동승자가 QR을 스캔하면 스마트폰에서 9:16 인스타 스토리 보딩패스 카드가 열립니다.
+                  </p>
+                </div>
+              </div>
+              <button id="btn-jump-mobile-ticket" type="button" class="px-4 py-2.5 rounded-xl btn-secondary-day text-xs shrink-0">
+                스마트폰 화면 보기 →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- VIEW 5: 오늘의 운행 종료 리포트 (양 끝단 15%/500m 폴리라인 절삭 + 플리 + 마일리지) -->
+        <!-- ========================================================================= -->
+        <div id="view-endtrip" class="hidden grid grid-cols-1 md:grid-cols-12 min-h-[620px] divide-y md:divide-y-0 md:divide-x divide-slate-200">
+
+          <!-- Left Column (6 Cols): 오늘의 운행 종료 시스템 (경로 프라이버시 폴리라인 절삭 + 키로수 + 플리 재생) -->
+          <div class="md:col-span-6 bg-[#F1F5F9] p-6 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono-num font-bold uppercase tracking-[0.16em] text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+                  TRIP FINALIZED · 오늘의 운행 종료 요약
+                </span>
+                <span id="endtrip-mate-badge" class="text-xs font-bold text-[#002C5F]">
+                  동승 메이트: 김철수 (대학 동료)
+                </span>
+              </div>
+              <h3 class="text-xl font-extrabold text-slate-900 mt-2 tracking-tight">
+                오늘의 드라이브 로그 & 플레이리스트
+              </h3>
+              <p class="text-xs text-slate-600 mt-0.5">
+                운전자가 탑승 종료를 누르면 양 끝단 500m(15%) 프라이버시 폴리라인 절삭 경로, 주행 키로수, 함께 들었던 노래가 아카이빙됩니다.
+              </p>
+
+              <!-- Privacy Route Map Card with True Polyline Clipping -->
+              <div class="mt-3.5 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                  <div>
+                    <span class="text-xs font-extrabold text-slate-900 block">🗺️ 오늘의 주행 경로 (양 끝단 500m/15% 절삭 마스킹)</span>
+                    <span id="endtrip-route-desc" class="text-[11px] text-slate-500">
+                      출발/도착 15%(500m) 폴리라인이 물리적으로 제거되어 집·숙소 노출을 원천 차단합니다.
+                    </span>
+                  </div>
+                  <label class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 cursor-pointer">
+                    <input id="chk-privacy-mask" type="checkbox" checked class="accent-[#002C5F] w-3.5 h-3.5" />
+                    <span class="text-[11px] font-bold text-[#002C5F]">🔒 출발·도착지 감추기 (공유 보호)</span>
+                  </label>
+                </div>
+
+                <!-- SVG Route Map with True Polyline Truncation when Masked -->
+                <svg viewBox="0 0 360 155" class="w-full h-36 rounded-xl bg-[#F4F7FA] border border-slate-200">
+                  <g stroke="#E2E8F0" stroke-width="1">
+                    <line x1="0" y1="40" x2="360" y2="40" />
+                    <line x1="0" y1="80" x2="360" y2="80" />
+                    <line x1="0" y1="120" x2="360" y2="120" />
+                    <line x1="90" y1="0" x2="90" y2="155" />
+                    <line x1="180" y1="0" x2="180" y2="155" />
+                    <line x1="270" y1="0" x2="270" y2="155" />
+                  </g>
+                  <path d="M 275 0 Q 295 70 265 125 T 300 155 L 360 155 L 360 0 Z" fill="#BAE6FD" opacity="0.55" />
+
+                  <!-- First 15% & Last 15% Segments (COMPLETELY HIDDEN when privacyMaskEnabled == true) -->
+                  <path id="svg-start-segment" d="M 40 130 Q 68 122 92 110" fill="none" stroke="#10B981" stroke-width="4" class="hidden" />
+                  <path id="svg-end-segment" d="M 255 48 Q 282 36 305 26" fill="none" stroke="#F43F5E" stroke-width="4" class="hidden" />
+
+                  <!-- Public Middle 70% Trajectory Segment (Always visible) -->
+                  <path d="M 92 110 Q 155 80 255 48" fill="none" stroke="#002C5F" stroke-width="4.5" stroke-linecap="round" />
+
+                  <!-- Privacy Mask Zones (Shown when chk-privacy-mask is checked) -->
+                  <g id="svg-privacy-zones">
+                    <circle cx="52" cy="125" r="22" fill="rgba(15, 23, 42, 0.08)" stroke="#002C5F" stroke-width="1.5" stroke-dasharray="3 3" />
+                    <text x="16" y="150" fill="#002C5F" font-size="9" font-weight="800">✂️ 첫 15%(500m) 좌표 절삭됨</text>
+
+                    <circle cx="295" cy="30" r="22" fill="rgba(15, 23, 42, 0.08)" stroke="#002C5F" stroke-width="1.5" stroke-dasharray="3 3" />
+                    <text x="215" y="15" fill="#002C5F" font-size="9" font-weight="800">✂️ 끝 15%(500m) 좌표 절삭됨</text>
+                  </g>
+
+                  <!-- Exact Pin Labels (Shown ONLY when privacy mask is OFF) -->
+                  <g id="svg-exact-pins" class="hidden">
+                    <circle cx="40" cy="130" r="5" fill="#10B981" stroke="#FFF" stroke-width="1.5" />
+                    <text x="16" y="148" fill="#047857" font-size="9" font-weight="800">출발: 울산 남구 무거동 자택</text>
+
+                    <circle cx="305" cy="26" r="5" fill="#F43F5E" stroke="#FFF" stroke-width="1.5" />
+                    <text x="205" y="15" fill="#BE123C" font-size="9" font-weight="800">도착: 경주 보문로 숙소 상세번지</text>
+                  </g>
+
+                  <circle cx="175" cy="76" r="5" fill="#0082B3" stroke="#FFF" stroke-width="1.5" />
+                  <text x="125" y="65" fill="#002C5F" font-size="9" font-weight="800">공개 구간(70%): 정자~감포 해안도로</text>
+                </svg>
+
+                <!-- Distance / Duration / Privacy Status Row -->
+                <div class="grid grid-cols-3 gap-2.5 mt-3 pt-3 border-t border-slate-100 text-center">
+                  <div class="bg-slate-50 rounded-xl p-2 border border-slate-200/70">
+                    <span class="text-[10px] text-slate-500 block">오늘 주행 키로수</span>
+                    <strong id="endtrip-km-val" class="text-sm font-extrabold text-[#002C5F] font-mono-num">18.4 km</strong>
+                  </div>
+                  <div class="bg-slate-50 rounded-xl p-2 border border-slate-200/70">
+                    <span class="text-[10px] text-slate-500 block">오늘 동승 시간</span>
+                    <strong id="endtrip-min-val" class="text-sm font-extrabold text-[#0082B3] font-mono-num">26 분</strong>
+                  </div>
+                  <div class="bg-slate-50 rounded-xl p-2 border border-slate-200/70">
+                    <span class="text-[10px] text-slate-500 block">공유 범위 상태</span>
+                    <strong id="endtrip-privacy-status" class="text-xs font-extrabold text-emerald-700">🔒 시작·끝 안심절삭</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- In-Car Playlist with Interactive Web Audio Preview -->
+              <div class="mt-3.5 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <span class="text-xs font-extrabold text-slate-900">🎵 오늘 드라이브에서 함께 들었던 노래 (클릭하여 미리듣기)</span>
+                    <p class="text-[11px] text-slate-500">Pleos Media Session 연동 · 주행 구간별 재생 트랙 아카이빙</p>
+                  </div>
+                  <span id="playlist-track-count" class="text-[10px] font-mono-num font-bold px-2.5 py-0.5 rounded-full pill-cyan">
+                    4곡 기록됨
+                  </span>
+                </div>
+
+                <div id="endtrip-playlist-box" class="space-y-1.5 max-h-36 overflow-y-auto custom-scroll pr-1">
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between gap-2">
+              <button id="btn-share-safe-log" type="button" class="w-full py-2.5 px-4 rounded-xl btn-primary-day text-xs">
+                📤 프라이버시 보호 상태로 오늘의 주행로그 & 플리 공유하기
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Column (6 Cols): 동승 마일리지 시스템 (동시 적립 + 운전자에게 양도 + 현대오일뱅크 등 활용처) -->
+          <div class="md:col-span-6 bg-[#FAF8F5] p-6 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono-num font-bold uppercase tracking-[0.16em] text-[#0082B3]">
+                  CO-RIDE MILEAGE ECOSYSTEM
+                </span>
+                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full pill-amber">
+                  1 km = 10 P 동시 적립
+                </span>
+              </div>
+              <h3 class="text-xl font-extrabold text-slate-900 mt-2 tracking-tight">
+                동승 마일리지 양도 & 제휴처 사용
+              </h3>
+              <p class="text-xs text-slate-600 mt-0.5">
+                운전자와 동승자가 동시에 마일리지를 받으며, 동승자는 고마움의 표시로 오늘 적립된 마일리지를 운전자에게 양도할 수 있습니다.
+              </p>
+
+              <!-- 1. Dual Wallet & Today's Transfer Card -->
+              <div class="mt-3.5 p-4 rounded-2xl daylight-card-elevated">
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- Driver Wallet -->
+                  <div class="p-3.5 rounded-xl bg-[#002C5F] text-white">
+                    <span class="text-[10px] font-mono-num uppercase tracking-wider text-sky-200 block">DRIVER WALLET · 운전자</span>
+                    <strong id="wallet-driver-total" class="text-2xl font-extrabold font-mono-num mt-1 block">14,550 P</strong>
+                    <span id="wallet-driver-today" class="text-[11px] text-sky-200 mt-1 block">
+                      오늘 주행 적립: +184 P
+                    </span>
+                  </div>
+
+                  <!-- Passenger Wallet -->
+                  <div class="p-3.5 rounded-xl bg-white border border-slate-200">
+                    <span id="wallet-mate-label" class="text-[10px] font-mono-num uppercase tracking-wider text-slate-500 block">
+                      PASSENGER · 김철수 님
+                    </span>
+                    <strong id="wallet-mate-total" class="text-2xl font-extrabold text-slate-900 font-mono-num mt-1 block">3,420 P</strong>
+                    <span id="wallet-mate-today" class="text-[11px] text-[#0082B3] font-bold mt-1 block">
+                      오늘 동시 적립: +184 P
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Today's Mileage Transfer to Driver Action -->
+                <div class="mt-3.5 pt-3.5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <span class="text-xs font-extrabold text-slate-900 block">🎁 오늘의 마일리지 운전자에게 양도하기</span>
+                    <span id="transfer-status-desc" class="text-[11px] text-slate-600">
+                      기름값·운전 수고 보답으로 오늘 받은 <strong class="text-[#002C5F]">+184 P</strong>를 운전자에게 선물합니다.
+                    </span>
+                  </div>
+                  <button id="btn-transfer-mileage" type="button" class="px-4 py-2 rounded-xl btn-accent-day text-xs shrink-0">
+                    오늘 마일리지 양도 (+184 P) →
+                  </button>
+                </div>
+              </div>
+
+              <!-- 2. Mileage Redemption Partners -->
+              <div class="mt-3.5">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-extrabold text-slate-900">⛽ 마일리지 제휴 사용처 (운전자 지갑 즉시 차감)</span>
+                  <span class="text-[11px] text-slate-500">바코드·핀번호 즉시 발급</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div class="p-3 rounded-2xl bg-white border border-slate-200 flex flex-col justify-between">
+                    <div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-100 text-[#002C5F]">주유·세차 제휴</span>
+                        <span class="text-xs font-mono-num font-extrabold text-[#0082B3]">3,000 P</span>
+                      </div>
+                      <h4 class="text-sm font-extrabold text-slate-900 mt-1">현대오일뱅크 주유/세차 3천원권</h4>
+                      <p class="text-[11px] text-slate-500 mt-0.5">전국 현대오일뱅크 주유소 및 스마트 주유 앱 연동</p>
+                    </div>
+                    <button type="button" data-redeem-name="현대오일뱅크 3,000원 주유쿠폰" data-redeem-cost="3000" class="redeem-partner-btn mt-2.5 w-full py-2 rounded-lg btn-secondary-day text-xs">
+                      현대오일뱅크 쿠폰 교환
+                    </button>
+                  </div>
+
+                  <div class="p-3 rounded-2xl bg-white border border-slate-200 flex flex-col justify-between">
+                    <div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">EV 초고속 충전</span>
+                        <span class="text-xs font-mono-num font-extrabold text-[#0082B3]">2,000 P</span>
+                      </div>
+                      <h4 class="text-sm font-extrabold text-slate-900 mt-1">현대 E-pit 전기차 충전 크레딧</h4>
+                      <p class="text-[11px] text-slate-500 mt-0.5">Pleos 충전 결제 시 2,000P 자동 할인 적용</p>
+                    </div>
+                    <button type="button" data-redeem-name="현대 E-pit 2,000원 충전 크레딧" data-redeem-cost="2000" class="redeem-partner-btn mt-2.5 w-full py-2 rounded-lg btn-secondary-day text-xs">
+                      E-pit 충전 크레딧 전환
+                    </button>
+                  </div>
+
+                  <div class="p-3 rounded-2xl bg-white border border-slate-200 flex flex-col justify-between">
+                    <div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">인카 카페이(CarPay)</span>
+                        <span class="text-xs font-mono-num font-extrabold text-[#0082B3]">1,500 P</span>
+                      </div>
+                      <h4 class="text-sm font-extrabold text-slate-900 mt-1">드라이브스루 커피 2잔 할인권</h4>
+                      <p class="text-[11px] text-slate-500 mt-0.5">운전자와 동승자가 함께 마시는 출발 전 모닝커피</p>
+                    </div>
+                    <button type="button" data-redeem-name="드라이브스루 아메리카노 할인권" data-redeem-cost="1500" class="redeem-partner-btn mt-2.5 w-full py-2 rounded-lg btn-secondary-day text-xs">
+                      드라이브스루 쿠폰 교환
+                    </button>
+                  </div>
+
+                  <div class="p-3 rounded-2xl bg-white border border-slate-200 flex flex-col justify-between">
+                    <div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">블루멤버스 연동</span>
+                        <span class="text-xs font-mono-num font-extrabold text-[#0082B3]">5,000 P</span>
+                      </div>
+                      <h4 class="text-sm font-extrabold text-slate-900 mt-1">현대 블루핸즈 소모품 정비 바우처</h4>
+                      <p class="text-[11px] text-slate-500 mt-0.5">와이퍼·에어컨 필터 교체 및 워셔액 보충 할인</p>
+                    </div>
+                    <button type="button" data-redeem-name="블루핸즈 정비 5,000원 바우처" data-redeem-cost="5000" class="redeem-partner-btn mt-2.5 w-full py-2 rounded-lg btn-secondary-day text-xs">
+                      블루멤버스 바우처 교환
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Redemption Feedback Banner -->
+            <div id="mileage-action-feedback" class="p-3 rounded-xl bg-sky-50 border border-sky-200 text-xs font-bold text-[#002C5F]">
+              💡 동승자가 양도한 마일리지로 현대오일뱅크 주유 쿠폰이나 E-pit 충전 크레딧을 바로 발급받아 보세요.
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- VIEW 3: Companion Mobile App / Web View (Bright White Boarding Pass)      -->
+        <!-- ========================================================================= -->
+        <div id="view-mobile" class="hidden p-6 grid grid-cols-1 md:grid-cols-12 gap-8 items-center min-h-[620px] bg-[#F1F5F9]">
+          <div class="md:col-span-5 space-y-4">
+            <div class="daylight-card rounded-2xl p-5">
+              <span class="text-[10px] font-mono-num font-bold uppercase tracking-[0.18em] text-[#0082B3]">STEP 1 · ZERO-TOUCH ONBOARDING</span>
+              <h3 class="text-base font-extrabold text-slate-900 mt-1.5">최초 1회 QR 메이트 연결 & 모션 감지</h3>
+              <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                최초 1회 운전자의 QR을 스캔해 동의하면, 이후 차량 탑승 시 OS 저전력 모션 API(<code>ActivityRecognitionClient</code> <code>IN_VEHICLE</code> / iOS <code>CMMotionActivityManager</code>)가 자동 체크인을 수행합니다.
+              </p>
+
+              <div class="mt-4 space-y-2 text-xs">
+                <label class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+                  <span class="text-slate-800 font-semibold">위치·동승 기록 공유 동의 (Opt-In)</span>
+                  <input id="chk-privacy-consent" type="checkbox" checked class="accent-[#002C5F] w-4 h-4" />
+                </label>
+                <label class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+                  <span class="text-slate-800 font-semibold">OS 저전력 IN_VEHICLE 모션 감지</span>
+                  <input id="chk-motion-api" type="checkbox" checked class="accent-[#002C5F] w-4 h-4" />
+                </label>
+              </div>
+            </div>
+
+            <div class="daylight-card rounded-2xl p-5">
+              <span class="text-xs font-extrabold text-slate-800 block mb-2">보딩패스 확인할 동승 메이트 선택</span>
+              <select id="mobile-mate-select" aria-label="모바일 보딩패스 동승자 선택" class="w-full bg-slate-50 text-slate-900 font-semibold text-xs rounded-xl p-3 border border-slate-300 outline-none">
+                <option value="p1">김철수 (대학 동료 · 1,858.4 km)</option>
+                <option value="p2">박영희 (단짝 친구 · 1,120.5 km)</option>
+                <option value="p3">이민수 (대학 동기 · 640.0 km)</option>
+                <option value="p5">가족 어머니 (패밀리 · 485.0 km)</option>
+                <option value="p4">최지훈 (연구실 동료 · 310.0 km)</option>
+              </select>
+              <div class="grid grid-cols-2 gap-2.5 mt-3.5">
+                <button id="btn-share-insta" type="button" class="py-2.5 px-3 rounded-xl btn-primary-day text-xs">
+                  📸 인스타 스토리 공유
+                </button>
+                <button id="btn-copy-ticket-link" type="button" class="py-2.5 px-3 rounded-xl btn-secondary-day text-xs">
+                  💬 카카오톡 링크 복사
+                </button>
+              </div>
+              <p id="mobile-share-feedback" class="text-xs text-[#0082B3] mt-2.5 font-bold"></p>
+            </div>
+          </div>
+
+          <!-- Right: Bright White & Navy First-Class Digital Boarding Pass -->
+          <div class="md:col-span-7 flex justify-center">
+            <div class="w-full max-w-sm rounded-[36px] bg-white border-4 border-slate-300 p-4 shadow-xl">
+              <div class="w-14 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
+              <div class="rounded-[24px] boarding-pass-daylight p-6 text-slate-900">
+                <div class="flex items-center justify-between text-[10px] font-mono-num font-bold tracking-[0.18em] text-[#002C5F]">
+                  <span>USUALY · PLEOS PASS</span>
+                  <span id="ticket-privacy-badge" class="text-emerald-700">🔒 출발·도착 안심가림</span>
+                </div>
+
+                <!-- Route Header -->
+                <div class="mt-6 flex items-center justify-between">
+                  <div>
+                    <span class="text-[10px] font-mono-num font-semibold text-slate-400 block">ORIGIN</span>
+                    <strong class="text-2xl font-extrabold tracking-tight text-[#002C5F]">ULSAN</strong>
+                    <span id="ticket-origin-sub" class="text-[11px] text-slate-600 font-medium block mt-0.5">울산 (상세주소 감춤)</span>
+                  </div>
+                  <div class="flex-1 px-4 text-center">
+                    <div class="w-full border-t border-dashed border-slate-300 my-2"></div>
+                    <span id="ticket-total-dist" class="text-[11px] font-mono-num font-bold px-2.5 py-0.5 rounded-full pill-cyan">
+                      1,858.4 KM
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] font-mono-num font-semibold text-slate-400 block">BEST COURSE</span>
+                    <strong id="ticket-dest-code" class="text-2xl font-extrabold tracking-tight text-[#002C5F]">GYEONGJU</strong>
+                    <span id="ticket-dest-name" class="text-[11px] text-slate-600 font-medium block mt-0.5">경주 해안도로</span>
+                  </div>
+                </div>
+
+                <!-- Passenger Metadata -->
+                <div class="my-5 border-y border-slate-200 py-4 grid grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <span class="text-[10px] font-mono-num text-slate-400 block">SOUL PASSENGER</span>
+                    <strong id="ticket-passenger-name" class="text-sm font-extrabold text-slate-900 mt-0.5 block">김철수 (대학 동료)</strong>
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-mono-num text-slate-400 block">CO-RIDE TIME</span>
+                    <strong id="ticket-passenger-time" class="text-sm font-extrabold text-[#0082B3] mt-0.5 block">총 31.9 시간 동행</strong>
+                  </div>
+                  <div class="col-span-2">
+                    <span class="text-[10px] font-mono-num text-slate-400 block">PERSONA AWARD</span>
+                    <strong id="ticket-persona-title" class="text-xs font-bold text-[#002C5F] mt-0.5 block">
+                      🏅 주말 장거리 여행 파트너 (서울-부산 2.3회 왕복)
+                    </strong>
+                  </div>
+                  <div class="col-span-2 bg-slate-50 rounded-xl p-2.5 border border-slate-200/80">
+                    <span class="text-[10px] font-mono-num text-slate-400 block">🎵 BEST BGM ON BOARD</span>
+                    <strong id="ticket-bgm-summary" class="text-xs font-bold text-slate-800 mt-0.5 block">
+                      NewJeans - Attention 외 3곡 함께 감상
+                    </strong>
+                  </div>
+                </div>
+
+                <!-- Barcode / Footer -->
+                <div class="flex items-center justify-between text-[10px] font-mono-num font-semibold text-slate-500">
+                  <span>SEAT · ROW_1_RIGHT</span>
+                  <span class="text-[#002C5F] font-bold">USUALY WRAPPED</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- VIEW 4: Architecture & Pleos SDK Specification Inspector                  -->
+        <!-- ========================================================================= -->
+        <div id="view-arch" class="hidden p-6 space-y-5 min-h-[620px] bg-[#F8FAFC]">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-4">
+            <div>
+              <h3 class="text-lg font-extrabold text-slate-900">3-Tier 아키텍처 & Gleo `assets/schema.json` 규격 + 라이프사이클 제어</h3>
+              <p class="text-xs text-slate-600 mt-0.5">기획서 Part 1의 표준 SDK 활용, 좌석별 독립 차분($\Delta D$), 시동 OFF 리스너 해제(`unregister` & `release()`) 명세</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="btn-suspend-ignition" type="button" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-sm transition">
+                🔌 시동 OFF (Suspend 리스너 일괄 해제 테스트)
+              </button>
+              <span class="text-xs font-mono-num font-bold px-3 py-1 rounded-full pill-emerald">
+                checkXXXCapabilities Verified
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="daylight-card rounded-2xl p-5">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-extrabold text-[#002C5F]">Gleo Interface · assets/schema.json</span>
+                <span class="text-[10px] font-mono-num font-semibold text-slate-500">MAX 3 ACTION CALLS</span>
+              </div>
+              <pre class="text-[11px] font-mono-num text-slate-800 bg-slate-50 p-3.5 rounded-xl border border-slate-200 overflow-x-auto leading-relaxed">{
+  "appVersion": "1.0.0",
+  "actionCalls": [
+    {
+      "name": "GET_TOP_CORIDER_STATS",
+      "component": "service",
+      "description": "주행 중 화면 전환 없이 동승 통계 음성 브리핑"
+    },
+    {
+      "name": "TAG_CURRENT_PASSENGER",
+      "component": "service",
+      "description": "현재 착석한 미등록 동승자를 음성으로 즉시 태깅"
+    },
+    {
+      "name": "START_MEMORY_ROUTE",
+      "component": "activity",
+      "description": "선택 동승자와의 최장 코스 NaviHelper 길안내 실행"
+    }
+  ]
+}</pre>
+            </div>
+
+            <div class="daylight-card rounded-2xl p-5 flex flex-col justify-between">
+              <div>
+                <span class="text-xs font-extrabold text-[#002C5F] block mb-3">엣지 케이스 방어 & 2단계 궤적 교차 검증 파이프라인</span>
+                <ul class="space-y-2.5 text-xs text-slate-600">
+                  <li class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong class="text-slate-900">1. 중간 픽업·하차 좌석별 독립 차분:</strong> 각 좌석(`1R`, `2L`, `2R`) 탑승 시각의 `D_start[seat]`를 개별 기록해 `ΔD_seat = D_current - D_start[seat]`를 독립 산출
+                  </li>
+                  <li class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong class="text-[#0082B3]">2. 가방 오탐지 차단 & 3분 디바운싱:</strong> `Occupied && !SeatBelt` 시 짐으로 판정해 제외하며, 휴게소 정차 시 180초 디바운싱 타이머로 세션 분리 방지
+                  </li>
+                  <li class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong class="text-slate-900">3. 양 끝단 15%(500m) 폴리라인 절삭 & 리스너 해제:</strong> 공유 시 출발·도착 폴리라인 세그먼트를 제거하고, Suspend 진입 시 `unregisterSeatOccupancy()` 및 `release()` 호출
+                  </li>
+                </ul>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-200 text-[11px] font-mono-num text-slate-500 flex items-center justify-between">
+                <span>pleos.car.permission.NAVI_ROUTE</span>
+                <span id="sdk-lifecycle-status" class="text-emerald-600 font-bold">ACTIVE · LISTENERS REGISTERED</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Right Column: Bright Pleos Virtual Console v2.1.0 Control Dock (3 Cols on XL) -->
+    <aside class="lg:col-span-4 xl:col-span-3 daylight-card rounded-[24px] p-5 flex flex-col gap-3.5">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+        <div>
+          <span class="text-[10px] font-mono-num font-bold uppercase tracking-[0.16em] text-[#0082B3]">HARDWARE SIMULATOR</span>
+          <h2 class="font-extrabold text-sm text-slate-900 mt-0.5">Virtual Console v2.1.0</h2>
+        </div>
+        <button id="btn-location-popup-test" type="button" class="text-[11px] px-2.5 py-1 rounded-lg btn-secondary-day">
+          위치차단 팝업 테스트
+        </button>
+      </div>
+
+      <!-- 1. Gear & UX Restrictions -->
+      <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/90">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-extrabold text-slate-800">기어 & 주행 규제 (DO)</span>
+          <span id="ux-restriction-badge" class="text-[10px] font-mono-num font-bold px-2 py-0.5 rounded-full pill-emerald">
+            BASELINE (정차)
+          </span>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btn-gear-p" type="button" class="py-2 px-3 rounded-xl text-xs btn-primary-day">
+            🅿️ 기어 P (Parking)
+          </button>
+          <button id="btn-gear-d" type="button" class="py-2 px-3 rounded-xl text-xs btn-secondary-day">
+            🚗 기어 D (Driving)
+          </button>
+        </div>
+        <p id="gear-status-desc" class="text-[11px] text-slate-600 mt-2 leading-relaxed">
+          현재 <strong>기어 P(정차)</strong> 상태입니다. 모든 리포트 열람이 허용됩니다.
+        </p>
+      </div>
+
+      <!-- 2. SeatArea Sensors -->
+      <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/90">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-extrabold text-slate-800">SeatArea 착석 & 벨트 센서</span>
+          <span class="text-[10px] font-mono-num font-semibold text-[#0082B3]">독립 D_start 기록</span>
+        </div>
+
+        <div class="space-y-2">
+          <!-- Seat 1R -->
+          <div class="p-2.5 rounded-xl bg-white border border-slate-200">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-bold text-slate-900">조수석 (1R)</span>
+              <span id="seat-1r-badge" class="text-[10px] font-mono-num font-bold px-2 py-0.5 rounded-full pill-emerald">Occupied</span>
+            </div>
+            <div class="text-[11px] text-slate-500 mb-1.5">
+              매칭: <strong id="seat-1r-mate-label" class="text-[#002C5F]">김철수 (대학 동료)</strong>
+            </div>
+            <select id="select-seat-1r" aria-label="조수석 탑승 상태 선택" class="w-full bg-slate-50 text-xs font-semibold text-slate-800 rounded-lg px-2 py-1.5 border border-slate-300 outline-none">
+              <option value="p1" selected>김철수 탑승 (벨트 ON)</option>
+              <option value="p2">박영희 탑승 (벨트 ON · 45일만의 재회)</option>
+              <option value="p5">가족(어머니) 탑승</option>
+              <option value="unknown">미등록 동승자 탑승</option>
+              <option value="bag">가방/짐 놓기 (벨트 OFF)</option>
+              <option value="empty">Empty (공석)</option>
+            </select>
+          </div>
+
+          <!-- Seat 2L -->
+          <div class="p-2.5 rounded-xl bg-white border border-slate-200">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-bold text-slate-900">2열 좌측 (2L · 중간 합류 테스트)</span>
+              <span id="seat-2l-badge" class="text-[10px] font-mono-num font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Empty</span>
+            </div>
+            <div class="text-[11px] text-slate-500 mb-1.5">
+              매칭: <strong id="seat-2l-mate-label" class="text-slate-500">없음</strong>
+            </div>
+            <select id="select-seat-2l" aria-label="2열 좌측 탑승 상태 선택" class="w-full bg-slate-50 text-xs font-semibold text-slate-800 rounded-lg px-2 py-1.5 border border-slate-300 outline-none">
+              <option value="empty" selected>Empty (공석)</option>
+              <option value="p3">이민수 중간 탑승 (벨트 ON)</option>
+              <option value="bag">가방/짐 놓기 (벨트 OFF)</option>
+            </select>
+          </div>
+
+          <!-- Seat 2R -->
+          <div class="p-2.5 rounded-xl bg-white border border-slate-200">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-bold text-slate-900">2열 우측 (2R · 중간 합류 테스트)</span>
+              <span id="seat-2r-badge" class="text-[10px] font-mono-num font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Empty</span>
+            </div>
+            <div class="text-[11px] text-slate-500 mb-1.5">
+              매칭: <strong id="seat-2r-mate-label" class="text-slate-500">없음</strong>
+            </div>
+            <select id="select-seat-2r" aria-label="2열 우측 탑승 상태 선택" class="w-full bg-slate-50 text-xs font-semibold text-slate-800 rounded-lg px-2 py-1.5 border border-slate-300 outline-none">
+              <option value="empty" selected>Empty (공석)</option>
+              <option value="p4">최지훈 중간 탑승 (벨트 ON)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Odometer & Trajectory Trigger -->
+      <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/90">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-extrabold text-slate-800">Odometer 주행거리 시뮬레이션</span>
+          <span id="trajectory-stage-badge" class="text-[10px] font-mono-num font-bold text-[#0082B3]">
+            ≥200m 검증됨
+          </span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-white border border-slate-200 text-xs mb-2">
+          <div>
+            <span class="text-[10px] text-slate-500 block">누적 Odometer</span>
+            <strong id="odo-total-readout" class="font-mono-num text-slate-900 font-bold text-xs">24,518.4 km</strong>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-500 block">현재 동승 차분</span>
+            <strong id="odo-session-readout" class="font-mono-num text-[#0082B3] font-bold text-xs">+18.4 km (26분)</strong>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-1.5">
+          <button id="btn-drive-200m" type="button" class="py-2 px-2 rounded-lg btn-secondary-day text-[11px] font-mono-num">
+            +0.2 km (2차 검증)
+          </button>
+          <button id="btn-drive-5km" type="button" class="py-2 px-2 rounded-lg btn-secondary-day text-[11px] font-mono-num">
+            +5.0 km (+7분)
+          </button>
+          <button id="btn-drive-25km" type="button" class="py-2 px-2 rounded-lg btn-secondary-day text-[11px] font-mono-num">
+            +25.0 km (+30분)
+          </button>
+        </div>
+        <div class="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-200 text-[11px]">
+          <span class="text-slate-600 font-medium">Room SQLite 동기화</span>
+          <button id="btn-toggle-network" type="button" class="px-2.5 py-0.5 rounded-full pill-emerald text-[10px] font-bold">
+            🌐 Online 동기화 중
+          </button>
+        </div>
+      </div>
+
+      <!-- SDK Event Stream -->
+      <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/90">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] font-mono-num font-bold uppercase tracking-wider text-slate-500">SDK CALLBACK STREAM</span>
+          <button id="btn-clear-log" type="button" class="text-[10px] text-slate-500 hover:text-slate-900 font-semibold">지우기</button>
+        </div>
+        <div id="sdk-mini-log" class="h-24 overflow-y-auto custom-scroll font-mono-num text-[10px] space-y-1.5 text-slate-600">
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 1: 9:16 Instagram Story & KakaoTalk Share Preview Modal             -->
+  <!-- ========================================================================= -->
+  <div id="modal-insta-preview" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-[28px] max-w-2xl w-full p-6 shadow-2xl grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+      <!-- Left: Controls & Mode Switcher -->
+      <div class="md:col-span-5 space-y-4">
+        <div>
+          <span class="text-[10px] font-mono-num font-bold uppercase tracking-widest text-[#D97757]">SNS VIRAL ARTIFACT PREVIEW</span>
+          <h4 class="text-lg font-extrabold text-slate-900 mt-1">9:16 인스타그램 스토리 & 카카오톡 공유 프리뷰</h4>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            QR 코드를 스캔하거나 공유 버튼을 눌렀을 때 실제 인스타그램 스토리(9:16 비율)에 업로드되는 실물 그래픽 카드입니다.
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <button id="btn-modal-card-pass" type="button" class="py-2.5 px-3.5 rounded-xl btn-primary-day text-xs text-left flex items-center justify-between">
+            <span>🎫 1. 연간 모빌리티 보딩패스 (QR Ticket)</span>
+            <span>선택됨</span>
+          </button>
+          <button id="btn-modal-card-recap" type="button" class="py-2.5 px-3.5 rounded-xl btn-secondary-day text-xs text-left flex items-center justify-between">
+            <span>🏁 2. 오늘의 운행 종료 리캡 (경로+플리)</span>
+            <span>보기</span>
+          </button>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1">
+          <div class="font-bold text-slate-900">🔒 프라이버시 안심 필터 상태</div>
+          <p id="insta-modal-privacy-note">출발지·도착지 반경 500m(15%) 구간이 절삭되어 SNS에 올려도 집 주소가 노출되지 않습니다.</p>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button id="btn-close-insta-modal" type="button" class="w-full py-2.5 rounded-xl btn-secondary-day text-xs font-bold">
+            닫기
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: True 9:16 Vertical Smartphone Story Canvas -->
+      <div class="md:col-span-7 flex justify-center">
+        <div class="w-[270px] h-[480px] rounded-[34px] bg-gradient-to-b from-[#002C5F] via-[#0B192C] to-[#1A1423] p-4 text-white shadow-2xl border-4 border-slate-800 flex flex-col justify-between relative overflow-hidden">
+          <!-- Story Top Progress Bars & User Handle -->
+          <div>
+            <div class="grid grid-cols-2 gap-1 mb-2.5">
+              <div class="h-1 rounded-full bg-white"></div>
+              <div id="story-bar-2" class="h-1 rounded-full bg-white/30"></div>
+            </div>
+            <div class="flex items-center justify-between text-[11px]">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-[#D97757] flex items-center justify-center font-extrabold text-[10px]">Us</span>
+                <span class="font-bold">usualy.pleos</span>
+                <span class="text-white/60 text-[10px]">방금 전</span>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-white/15 font-mono-num">2026 WRAPPED</span>
+            </div>
+          </div>
+
+          <!-- Story Card Content Area (Switches between Boarding Pass & Today's Recap) -->
+          <div id="insta-story-body" class="my-auto bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 space-y-3">
+          </div>
+
+          <!-- Story Bottom Sticker & CTA -->
+          <div class="text-center space-y-1.5">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#002C5F] text-[10px] font-extrabold shadow">
+              <span>🎵</span>
+              <span id="insta-story-bgm-sticker">NewJeans - Attention (In-Car BGM)</span>
+            </div>
+            <p class="text-[9px] font-mono-num text-white/60 tracking-widest uppercase">
+              HYUNDAI PLEOS CONNECT · USUALY
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Location Access Blocked Standard Popup Modal -->
+  <div id="modal-location-blocked" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <span class="text-[10px] font-mono-num font-bold uppercase tracking-widest text-[#0082B3]">FusedLocation.showLocationAccessBlockedPopup()</span>
+      <h4 class="text-base font-extrabold text-slate-900 mt-2">차량 위치 정보 접근이 차단되어 있습니다</h4>
+      <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+        UsUaly(Co-Ride Wrapped)의 2단계 시공간·궤적 매칭 및 내비게이션 미사용 구간 역지오코딩을 위해 차량 개인정보 설정에서 위치 정보 접근을 허용해 주세요.
+      </p>
+      <div class="mt-5 flex justify-end">
+        <button id="btn-close-loc-modal" type="button" class="px-4 py-2 rounded-xl btn-primary-day text-xs">
+          위치 권한 허용 및 닫기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const appState = {
+      viewMode: '1win', // '1win' | '2win' | 'endtrip' | 'mobile' | 'arch'
+      gear: 'P',
+      sortBy: 'dist',
+      selectedMateId: 'p1',
+      isOnline: true,
+      offlineQueueCount: 0,
+      doorsOpen: false,
+      debounceSecondsLeft: 0,
+      debounceIntervalId: null,
+      instaStoryMode: 'pass', // 'pass' | 'recap'
+      baseOdometerKm: 24500.0,
+      sessionDeltaKm: 18.4,
+      sessionDeltaMin: 26,
+      trajectoryStage: 2,
+      // Independent per-seat boarding odometer snapshot (D_start)
+      seatStartOdo: {
+        row1Right: 24500.0, // boarded at start of session
+        row2Left: null,
+        row2Right: null
+      },
+      driverBasePoints: 14366,
+      mateTransferredPoints: 0,
+      isTodayTransferred: false,
+      privacyMaskEnabled: true,
+      seats: {
+        row1Right: 'p1',
+        row2Left: 'empty',
+        row2Right: 'empty'
+      },
+      passengers: {
+        p1: {
+          id: 'p1',
+          name: '김철수',
+          relation: '대학 동료',
+          baseDistKm: 1840.0,
+          baseTimeMin: 1890,
+          basePoints: 3236,
+          trips: 28,
+          daysSinceLastRide: 3,
+          lastRideSummary: '11월 8일 울산대 카풀 (14.2km)',
+          ambientName: '오션 시안 (Ocean Cyan)',
+          ambientHex: '#0082B3',
+          ambientRgba: 'rgba(0, 130, 179, 0.25)',
+          tempPref: '21.5°C',
+          persona: '주말 장거리 여행 파트너',
+          personaDesc: '주행 패턴 군집화 결과 주말 오전·오후 장거리 비중이 74%로 가장 높습니다.',
+          bestTripTitle: '10월 24일 울산 → 경주 해안도로 드라이브 (94.0 km)',
+          bestTripWaypoints: '경유지(RequestWaypointInfo): 울산 태화강 국가정원 → 정자해변 → 감포 해안도로 → 경주 보문호',
+          poiSource: '1순위: NaviHelper.getDestinationInfo()',
+          destCode: 'GYEONGJU',
+          destName: '경주 해안도로',
+          seatPref: '조수석 (ROW_1_RIGHT)',
+          playlist: [
+            { title: 'Attention', artist: 'NewJeans', point: '태화강 국가정원 출발 구간', time: '03:00', freq: [523.25, 659.25, 783.99] },
+            { title: '한 페이지가 될 수 있게', artist: 'DAY6 (데이식스)', point: '울산 정자해변 진입 구간', time: '03:25', freq: [440, 554.37, 659.25] },
+            { title: '사건의 지평선', artist: '윤하 (YOUNHA)', point: '감포 해안도로 드라이브 구간', time: '05:00', freq: [587.33, 739.99, 880] },
+            { title: '청춘찬가', artist: '세븐틴 (SEVENTEEN)', point: '경주 보문호 도착 직전 구간', time: '03:18', freq: [493.88, 622.25, 739.99] }
+          ]
+        },
+        p2: {
+          id: 'p2',
+          name: '박영희',
+          relation: '단짝 친구',
+          baseDistKm: 1120.5,
+          baseTimeMin: 2520,
+          basePoints: 2890,
+          trips: 34,
+          daysSinceLastRide: 45,
+          lastRideSummary: '9월 28일 부산 해운대 심야 해안드라이브 (68.0km)',
+          ambientName: '선셋 코랄 (Sunset Coral)',
+          ambientHex: '#D97757',
+          ambientRgba: 'rgba(217, 119, 87, 0.28)',
+          tempPref: '23.0°C',
+          persona: '새벽 감성 심야 드라이브 메이트 (22~04시 비중 68%)',
+          personaDesc: '박영희 님과 차 안에서 총 42시간(영화 21편 분량)의 대화를 나눴습니다.',
+          bestTripTitle: '8월 15일 울산 간절곶 → 해운대 심야 해안드라이브 (68.0 km)',
+          bestTripWaypoints: '경유지(RequestWaypointInfo): 울산 간절곶 → 기장 일광해수욕장 → 해운대 달맞이길',
+          poiSource: '2순위: FusedLocation 하차 좌표 역지오코딩',
+          destCode: 'HAEUNDAE',
+          destName: '부산 해운대',
+          seatPref: '조수석 (ROW_1_RIGHT)',
+          playlist: [
+            { title: '밤편지', artist: '아이유 (IU)', point: '간절곶 심야 출발 구간', time: '04:13', freq: [392, 493.88, 587.33] },
+            { title: 'Ditto', artist: 'NewJeans', point: '기장 해안로 구간', time: '03:05', freq: [440, 523.25, 659.25] },
+            { title: '주저하는 연인들을 위해', artist: '잔나비', point: '해운대 달맞이길 구간', time: '04:25', freq: [349.23, 440, 523.25] }
+          ]
+        },
+        p3: {
+          id: 'p3',
+          name: '이민수',
+          relation: '대학 동기',
+          baseDistKm: 640.0,
+          baseTimeMin: 1140,
+          basePoints: 1920,
+          trips: 41,
+          daysSinceLastRide: 1,
+          lastRideSummary: '어제 오전 무거동 통학 카풀 (12.0km)',
+          ambientName: '포레스트 민트 (Forest Mint)',
+          ambientHex: '#059669',
+          ambientRgba: 'rgba(5, 150, 105, 0.24)',
+          tempPref: '20.5°C',
+          persona: '매일 아침을 여는 통학·출퇴근 러닝메이트',
+          personaDesc: '평일 오전 8~9시 통학 카풀 비중이 82%에 달하는 든든한 러닝메이트입니다.',
+          bestTripTitle: '9월 12일 울산대 → 태화강 국가정원 드라이브 (24.0 km)',
+          bestTripWaypoints: '경유지(RequestWaypointInfo): 무거동 대학로 → 태화강 십리대숲 → 성남동',
+          poiSource: '1순위: NaviHelper.getDestinationInfo()',
+          destCode: 'TAEHWAGANG',
+          destName: '태화강 국가정원',
+          seatPref: '2열 좌측 (ROW_2_LEFT)',
+          playlist: [
+            { title: '파이팅 해야지 (Feat. 이영지)', artist: '부석순 (SEVENTEEN)', point: '무거동 아침 통학 출발', time: '03:24', freq: [587.33, 698.46, 880] },
+            { title: 'Super Shy', artist: 'NewJeans', point: '태화강 십리대숲 구간', time: '02:34', freq: [523.25, 659.25, 783.99] }
+          ]
+        },
+        p5: {
+          id: 'p5',
+          name: '가족 (어머니)',
+          relation: '패밀리 메이트',
+          baseDistKm: 485.0,
+          baseTimeMin: 840,
+          basePoints: 1650,
+          trips: 15,
+          daysSinceLastRide: 14,
+          lastRideSummary: '2주 전 주말 언양 나들이 (42.0km)',
+          ambientName: '웜 샌드 골드 (Warm Sand)',
+          ambientHex: '#B45309',
+          ambientRgba: 'rgba(180, 83, 9, 0.22)',
+          tempPref: '23.5°C',
+          persona: '주말 힐링 나들이 파트너',
+          personaDesc: '주말 오후 교외 사찰 및 자연 명소 나들이를 함께한 패밀리 파트너입니다.',
+          bestTripTitle: '5월 08일 울산 → 양산 통도사 산책길 (56.0 km)',
+          bestTripWaypoints: '경유지(RequestWaypointInfo): 울산역 → 언양 자수정동굴 → 양산 통도사',
+          poiSource: '1순위: NaviHelper.getDestinationInfo()',
+          destCode: 'TONGDOSA',
+          destName: '양산 통도사',
+          seatPref: '조수석 (ROW_1_RIGHT)',
+          playlist: [
+            { title: '사랑은 늘 도망가', artist: '임영웅', point: '언양 교외선 진입 구간', time: '04:03', freq: [392, 493.88, 587.33] },
+            { title: '바램', artist: '임영웅', point: '통도사 산책로 입구 구간', time: '04:12', freq: [440, 523.25, 659.25] }
+          ]
+        },
+        p4: {
+          id: 'p4',
+          name: '최지훈',
+          relation: '연구실 동료',
+          baseDistKm: 310.0,
+          baseTimeMin: 570,
+          basePoints: 980,
+          trips: 12,
+          daysSinceLastRide: 9,
+          lastRideSummary: '9일 전 일산해변 야간 드라이브 (38.0km)',
+          ambientName: '바이올렛 나이트 (Violet Night)',
+          ambientHex: '#6366F1',
+          ambientRgba: 'rgba(99, 102, 241, 0.24)',
+          tempPref: '21.0°C',
+          persona: '캠퍼스 셔틀 & 야식 메이트',
+          personaDesc: '야간 연구실 퇴근 및 해안가 리프레시 드라이브를 함께했습니다.',
+          bestTripTitle: '11월 02일 울산 과학기술원 → 일산해수욕장 (38.0 km)',
+          bestTripWaypoints: '경유지(RequestWaypointInfo): 구영리 → 아산로 → 동구 일산해수욕장',
+          poiSource: '2순위: FusedLocation 하차 좌표 역지오코딩',
+          destCode: 'ILSAN BEACH',
+          destName: '울산 일산해변',
+          seatPref: '2열 우측 (ROW_2_RIGHT)',
+          playlist: [
+            { title: '비도 오고 그래서', artist: '헤이즈 (Heize)', point: '구영리 연구실 출발', time: '03:26', freq: [349.23, 440, 523.25] },
+            { title: '신호등', artist: '이무진', point: '일산해수욕장 해안길', time: '03:51', freq: [523.25, 659.25, 783.99] }
+          ]
+        }
+      }
+    };
+
+    function appendSdkLog(msg) {
+      const logBox = document.getElementById('sdk-mini-log');
+      if (!logBox) return;
+      const now = new Date();
+      const timeStr = now.toTimeString().slice(0, 8);
+      const item = document.createElement('div');
+      item.className = 'border-l-2 border-[#0082B3] pl-2 py-0.5 text-slate-700';
+      item.textContent = `${timeStr} · ${msg}`;
+      logBox.prepend(item);
+    }
+
+    function playTrackPreviewChime(freqs, title) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        (freqs || [523.25, 659.25, 783.99]).forEach((f, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, ctx.currentTime + idx * 0.14);
+          gain.gain.setValueAtTime(0.08, ctx.currentTime + idx * 0.14);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.14 + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + idx * 0.14);
+          osc.stop(ctx.currentTime + idx * 0.14 + 0.36);
+        });
+        appendSdkLog(`Pleos MediaSession Preview: ♪ ${title} 오디오 샘플 재생`);
+      } catch (e) {}
+    }
+
+    function getCurrentTotalOdo() {
+      return Number((appState.baseOdometerKm + appState.sessionDeltaKm).toFixed(1));
+    }
+
+    // True per-seat Delta D calculation (D_current - D_start[seat])
+    function getSeatDeltaKm(seatKey) {
+      const val = appState.seats[seatKey];
+      if (!val || !val.startsWith('p')) return 0;
+      const startOdo = appState.seatStartOdo[seatKey];
+      if (startOdo === null || startOdo === undefined) return appState.sessionDeltaKm;
+      return Math.max(0, Number((getCurrentTotalOdo() - startOdo).toFixed(1)));
+    }
+
+    function getPassengerCurrentSessionDeltaKm(mateId) {
+      let delta = 0;
+      ['row1Right', 'row2Left', 'row2Right'].forEach((seatKey) => {
+        if (appState.seats[seatKey] === mateId) {
+          delta = getSeatDeltaKm(seatKey);
+        }
+      });
+      return delta;
+    }
+
+    function getActiveSeatedPassengerIds() {
+      const activeIds = [];
+      ['row1Right', 'row2Left', 'row2Right'].forEach((seatKey) => {
+        const val = appState.seats[seatKey];
+        if (val && val.startsWith('p')) {
+          activeIds.push(val);
+        }
+      });
+      return activeIds;
+    }
+
+    function getTodayEarnedPoints() {
+      return Math.round(appState.sessionDeltaKm * 10);
+    }
+
+    function getDriverTotalPoints() {
+      return appState.driverBasePoints + getTodayEarnedPoints() + appState.mateTransferredPoints;
+    }
+
+    function getMateTotalPoints(mateId) {
+      const mate = appState.passengers[mateId];
+      const earnedToday = Math.round(getPassengerCurrentSessionDeltaKm(mateId) * 10) || getTodayEarnedPoints();
+      const transferredDeduction = appState.isTodayTransferred ? getTodayEarnedPoints() : 0;
+      return Math.max(0, mate.basePoints + earnedToday - transferredDeduction);
+    }
+
+    function getEffectiveStats(mateId) {
+      const mate = appState.passengers[mateId];
+      const activeIds = getActiveSeatedPassengerIds();
+      const isCurrentlyRiding = activeIds.includes(mateId);
+      const seatDeltaKm = getPassengerCurrentSessionDeltaKm(mateId);
+      const totalDist = mate.baseDistKm + (isCurrentlyRiding ? seatDeltaKm : 0);
+      const totalMin = mate.baseTimeMin + (isCurrentlyRiding ? Math.round(seatDeltaKm * 1.4) : 0);
+      return {
+        ...mate,
+        seatDeltaKm,
+        totalDistKm: Number(totalDist.toFixed(1)),
+        totalHours: Number((totalMin / 60).toFixed(1)),
+        totalMin,
+        isCurrentlyRiding
+      };
+    }
+
+    function getSortedPassengers() {
+      const list = Object.keys(appState.passengers).map(getEffectiveStats);
+      if (appState.sortBy === 'dist') {
+        list.sort((a, b) => b.totalDistKm - a.totalDistKm);
+      } else {
+        list.sort((a, b) => b.totalMin - a.totalMin);
+      }
+      return list;
+    }
+
+    function updateAmbientAndReunionUI() {
+      const activeIds = getActiveSeatedPassengerIds();
+      const primaryId = activeIds[0] || appState.selectedMateId;
+      const mate = appState.passengers[primaryId];
+      if (!mate) return;
+
+      document.documentElement.style.setProperty('--ambient-color', mate.ambientRgba);
+      document.documentElement.style.setProperty('--ambient-solid', mate.ambientHex);
+
+      const dot = document.getElementById('ambient-color-dot');
+      const text = document.getElementById('ambient-mood-text');
+      const stop1 = document.getElementById('svg-ambient-stop1');
+      if (dot) dot.style.backgroundColor = mate.ambientHex;
+      if (text) text.textContent = `앰비언트: ${mate.ambientName} · 공조 ${mate.tempPref}`;
+      if (stop1) stop1.setAttribute('stop-color', mate.ambientHex);
+
+      const reunionTitle = document.getElementById('reunion-toast-title');
+      const reunionSub = document.getElementById('reunion-toast-sub');
+      if (appState.debounceSecondsLeft > 0) {
+        reunionTitle.textContent = `☕ 휴게소 임시 정차 디바운싱 작동 중 — 세션 끊김 방지`;
+        reunionSub.textContent = `3분(180초) 이내 재탑승 시 기존 동승 세션(${appState.sessionDeltaKm.toFixed(1)}km)이 끊기지 않고 이어집니다.`;
+      } else if (mate.daysSinceLastRide >= 30) {
+        reunionTitle.textContent = `🎉 ${mate.name} 님과 ${mate.daysSinceLastRide}일 만의 반가운 재회네요!`;
+        reunionSub.textContent = `마지막 동승: ${mate.lastRideSummary} · 맞춤 '${mate.ambientName}' 무드 조명과 ${mate.tempPref} 공조가 켜졌습니다.`;
+      } else {
+        reunionTitle.textContent = `✨ ${mate.name} 님과 ${mate.daysSinceLastRide}일 만의 동행 (올해 ${mate.trips}번째 드라이브)`;
+        reunionSub.textContent = `최근 동승: ${mate.lastRideSummary} · 맞춤 '${mate.ambientName}' 앰비언트 연동 완료`;
+      }
+    }
+
+    function renderDigitalTwin() {
+      // Doors
+      const fl = document.getElementById('svg-door-fl');
+      const fr = document.getElementById('svg-door-fr');
+      const rl = document.getElementById('svg-door-rl');
+      const rr = document.getElementById('svg-door-rr');
+      const doorLabel = document.getElementById('twin-door-status-label');
+
+      if (appState.doorsOpen) {
+        fl.classList.add('door-left-open');
+        rl.classList.add('door-left-open');
+        fr.classList.add('door-right-open');
+        rr.classList.add('door-right-open');
+        doorLabel.textContent = 'DOORS OPEN (승하차 중)';
+        doorLabel.className = 'text-[10px] font-mono-num font-bold text-amber-600';
+      } else {
+        fl.classList.remove('door-left-open');
+        rl.classList.remove('door-left-open');
+        fr.classList.remove('door-right-open');
+        rr.classList.remove('door-right-open');
+        doorLabel.textContent = 'DOORS CLOSED';
+        doorLabel.className = 'text-[10px] font-mono-num font-semibold text-emerald-700';
+      }
+
+      // Seats in SVG Twin
+      const seatConfigs = [
+        { key: 'row1Right', rectId: 'twin-rect-1r', beltId: 'twin-belt-1r', nameId: 'twin-name-1r', deltaId: 'twin-delta-1r', emptyLabel: '조수석(공석)' },
+        { key: 'row2Left', rectId: 'twin-rect-2l', beltId: 'twin-belt-2l', nameId: 'twin-name-2l', deltaId: 'twin-delta-2l', emptyLabel: '2열 좌(공석)' },
+        { key: 'row2Right', rectId: 'twin-rect-2r', beltId: 'twin-belt-2r', nameId: 'twin-name-2r', deltaId: 'twin-delta-2r', emptyLabel: '2열 우(공석)' }
+      ];
+
+      const breakdownParts = [];
+
+      seatConfigs.forEach((sc) => {
+        const val = appState.seats[sc.key];
+        const rect = document.getElementById(sc.rectId);
+        const belt = document.getElementById(sc.beltId);
+        const nameEl = document.getElementById(sc.nameId);
+        const deltaEl = document.getElementById(sc.deltaId);
+
+        if (val === 'empty') {
+          rect.setAttribute('fill', '#F1F5F9');
+          rect.setAttribute('stroke', '#94A3B8');
+          belt.classList.add('hidden');
+          nameEl.textContent = sc.emptyLabel;
+          nameEl.setAttribute('fill', '#64748B');
+          deltaEl.textContent = 'Empty';
+          deltaEl.setAttribute('fill', '#94A3B8');
+        } else if (val === 'bag') {
+          rect.setAttribute('fill', '#FFE4E6');
+          rect.setAttribute('stroke', '#F43F5E');
+          belt.classList.add('hidden');
+          nameEl.textContent = '가방/짐(차단)';
+          nameEl.setAttribute('fill', '#BE123C');
+          deltaEl.textContent = '벨트 OFF';
+          deltaEl.setAttribute('fill', '#E11D48');
+          breakdownParts.push(`${sc.emptyLabel.slice(0, 3)}: 짐 오탐지 차단`);
+        } else if (val === 'unknown') {
+          rect.setAttribute('fill', '#FEF3C7');
+          rect.setAttribute('stroke', '#D97706');
+          belt.classList.remove('hidden');
+          nameEl.textContent = '미등록 탑승';
+          nameEl.setAttribute('fill', '#92400E');
+          deltaEl.textContent = '태깅 대기';
+          deltaEl.setAttribute('fill', '#B45309');
+          breakdownParts.push(`${sc.emptyLabel.slice(0, 3)}: 미등록 동승자`);
+        } else {
+          const mate = appState.passengers[val];
+          const seatDelta = getSeatDeltaKm(sc.key);
+          rect.setAttribute('fill', mate.ambientHex || '#0082B3');
+          rect.setAttribute('stroke', '#002C5F');
+          belt.classList.remove('hidden');
+          nameEl.textContent = mate.name;
+          nameEl.setAttribute('fill', '#FFFFFF');
+          deltaEl.textContent = `+${seatDelta.toFixed(1)}km`;
+          deltaEl.setAttribute('fill', '#E0F2FE');
+          breakdownParts.push(`${ mate.name }: +${seatDelta.toFixed(1)}km`);
+        }
+      });
+
+      document.getElementById('twin-seat-breakdown').innerHTML =
+        breakdownParts.length > 0 ? breakdownParts.join('<br>') : '모든 동승석 공석 (나홀로 주행)';
+    }
+
+    function renderInstaStoryModalContent() {
+      const m = getEffectiveStats(appState.selectedMateId);
+      const body = document.getElementById('insta-story-body');
+      const sticker = document.getElementById('insta-story-bgm-sticker');
+      const bar2 = document.getElementById('story-bar-2');
+      const firstTrack = (m.playlist && m.playlist[0]) ? `${m.playlist[0].artist} - ${m.playlist[0].title}` : 'NewJeans - Attention';
+      sticker.textContent = `${firstTrack} (In-Car BGM)`;
+
+      const btnPass = document.getElementById('btn-modal-card-pass');
+      const btnRecap = document.getElementById('btn-modal-card-recap');
+
+      if (appState.instaStoryMode === 'pass') {
+        bar2.className = 'h-1 rounded-full bg-white/30';
+        btnPass.className = 'py-2.5 px-3.5 rounded-xl btn-primary-day text-xs text-left flex items-center justify-between';
+        btnRecap.className = 'py-2.5 px-3.5 rounded-xl btn-secondary-day text-xs text-left flex items-center justify-between';
+
+        body.innerHTML = `
+          <div class="flex items-center justify-between text-[10px] font-mono-num text-sky-200">
+            <span>BOARDING PASS</span>
+            <span>${appState.privacyMaskEnabled ? '🔒 500m 안심가림' : '🌐 전체공개'}</span>
+          </div>
+          <div class="flex items-center justify-between py-2 border-y border-white/15">
+            <div>
+              <span class="text-[9px] text-white/60 block">DEPARTURE</span>
+              <strong class="text-lg font-black">ULSAN</strong>
+            </div>
+            <span class="text-xs font-mono-num font-bold px-2 py-0.5 rounded-full bg-white/20">${m.totalDistKm.toLocaleString()} KM</span>
+            <div class="text-right">
+              <span class="text-[9px] text-white/60 block">DESTINATION</span>
+              <strong class="text-lg font-black">${m.destCode}</strong>
+            </div>
+          </div>
+          <div class="space-y-1 text-xs">
+            <div class="flex justify-between">
+              <span class="text-white/60">소울 패신저</span>
+              <strong class="font-extrabold">${m.name} (${m.relation})</strong>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-white/60">함께 달린 시간</span>
+              <strong class="font-extrabold text-amber-300">총 ${m.totalHours} 시간 (${m.trips}회)</strong>
+            </div>
+            <div class="pt-1">
+              <span class="text-[10px] px-2 py-0.5 rounded bg-white/15 text-sky-200 font-bold block text-center">
+                🏅 ${m.persona}
+              </span>
+            </div>
+          </div>
+        `;
+      } else {
+        bar2.className = 'h-1 rounded-full bg-white';
+        btnRecap.className = 'py-2.5 px-3.5 rounded-xl btn-primary-day text-xs text-left flex items-center justify-between';
+        btnPass.className = 'py-2.5 px-3.5 rounded-xl btn-secondary-day text-xs text-left flex items-center justify-between';
+
+        body.innerHTML = `
+          <div class="flex items-center justify-between text-[10px] font-mono-num text-emerald-300">
+            <span>TODAY'S RECAP</span>
+            <span>+${appState.sessionDeltaKm.toFixed(1)} KM · +${getTodayEarnedPoints()}P</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-black/30 border border-white/15">
+            <div class="text-[10px] text-white/70 mb-1">
+              ${appState.privacyMaskEnabled ? '✂️ 출발·도착 500m(15%) 절삭 안심 경로' : '🌐 오늘 주행 전체 경로'}
+            </div>
+            <svg viewBox="0 0 200 70" class="w-full h-14">
+              <path d="M 35 55 Q 95 35 165 18" fill="none" stroke="#38BDF8" stroke-width="3.5" stroke-linecap="round"/>
+              <circle cx="35" cy="55" r="4" fill="#10B981"/>
+              <circle cx="165" cy="18" r="4" fill="#F43F5E"/>
+            </svg>
+          </div>
+          <div class="space-y-1 text-[11px]">
+            <div class="font-bold text-white">🎵 오늘 차 안에서 함께 들은 플리</div>
+            ${(m.playlist || []).slice(0, 3).map((t, i) => `
+              <div class="flex justify-between text-[10px] text-white/85 truncate">
+                <span>${i + 1}. ${t.title} - ${t.artist}</span>
+                <span class="font-mono-num text-white/50">${t.time}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    }
+
+    function renderAll() {
+      // Enforce CarUxRestrictions DO lock on 2-Window tab when Gear == D
+      const tab2WinBtn = document.getElementById('tab-2win');
+      const btnExpand2Win = document.getElementById('btn-expand-to-2win');
+      if (appState.gear === 'D') {
+        tab2WinBtn.disabled = true;
+        tab2WinBtn.title = '주행 중(Gear D)에는 2-Window 리포트 열람이 제한됩니다.';
+        btnExpand2Win.disabled = true;
+        if (appState.viewMode === '2win') {
+          appState.viewMode = '1win';
+        }
+      } else {
+        tab2WinBtn.disabled = false;
+        tab2WinBtn.title = '';
+        btnExpand2Win.disabled = false;
+      }
+
+      const tabMap = {
+        '1win': 'tab-1win',
+        '2win': 'tab-2win',
+        'endtrip': 'tab-endtrip',
+        'mobile': 'tab-mobile',
+        'arch': 'tab-arch'
+      };
+      Object.entries(tabMap).forEach(([mode, btnId]) => {
+        const btn = document.getElementById(btnId);
+        const view = document.getElementById(`view-${mode}`);
+        if (appState.viewMode === mode) {
+          btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold transition-all bg-[#002C5F] text-white shadow-sm';
+          view.classList.remove('hidden');
+        } else {
+          btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all text-slate-600 hover:text-slate-900 disabled:opacity-40';
+          view.classList.add('hidden');
+        }
+      });
+
+      const modeIndicator = document.getElementById('avn-window-mode-indicator');
+      if (appState.viewMode === '1win') modeIndicator.textContent = appState.gear === 'D' ? 'Driving Glare-Free Dark Mode (DO Active)' : 'Portrait 1-Window Mode (UsUaly Warm Daylight)';
+      else if (appState.viewMode === '2win') modeIndicator.textContent = 'Landscape 2-Window Mode (UsUaly Editorial)';
+      else if (appState.viewMode === 'endtrip') modeIndicator.textContent = '오늘의 운행 종료 & 마일리지 정산 뷰';
+      else if (appState.viewMode === 'mobile') modeIndicator.textContent = 'Mobile Companion Pass';
+      else modeIndicator.textContent = 'Pleos SDK Inspector';
+
+      // Offline Queue Badge
+      const queueBadge = document.getElementById('avn-offline-queue-badge');
+      if (!appState.isOnline || appState.offlineQueueCount > 0) {
+        queueBadge.classList.remove('hidden');
+        document.getElementById('offline-queue-count').textContent = String(appState.offlineQueueCount);
+      } else {
+        queueBadge.classList.add('hidden');
+      }
+
+      // Update Header & Live Dual Points
+      const todayPts = getTodayEarnedPoints();
+      const driverPts = getDriverTotalPoints();
+      const matePts = getMateTotalPoints(appState.selectedMateId);
+      document.getElementById('header-driver-pts').textContent = driverPts.toLocaleString();
+      document.getElementById('header-mate-pts').textContent = matePts.toLocaleString();
+      document.getElementById('live-card-dual-points').textContent = `각 +${todayPts.toLocaleString()} P`;
+
+      const btnGearP = document.getElementById('btn-gear-p');
+      const btnGearD = document.getElementById('btn-gear-d');
+      const uxBadge = document.getElementById('ux-restriction-badge');
+      const gearDesc = document.getElementById('gear-status-desc');
+      const avnGear = document.getElementById('avn-gear-indicator');
+      const onewinTag = document.getElementById('onewin-mode-tag');
+      const doLockPanel = document.getElementById('driving-do-lock-panel');
+      const parkingListPanel = document.getElementById('parking-compact-list-panel');
+      const rightPanel = document.getElementById('onewin-right-panel');
+      const liveCard = document.getElementById('live-telemetry-card');
+      const mainHeading = document.getElementById('onewin-main-heading');
+      const deltaDText = document.getElementById('live-card-delta-d');
+      const statusTitle = document.getElementById('live-card-status-title');
+
+      if (appState.gear === 'P') {
+        btnGearP.className = 'py-2 px-3 rounded-xl text-xs btn-primary-day';
+        btnGearD.className = 'py-2 px-3 rounded-xl text-xs btn-secondary-day';
+        uxBadge.textContent = 'BASELINE (정차)';
+        uxBadge.className = 'text-[10px] font-mono-num font-bold px-2 py-0.5 rounded-full pill-emerald';
+        gearDesc.innerHTML = '현재 <strong>기어 P(정차)</strong> 상태입니다. 모든 리포트 열람이 허용됩니다.';
+        avnGear.textContent = 'GEAR · P';
+        avnGear.className = 'px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#002C5F] text-white';
+        onewinTag.textContent = 'PARKING · 컴팩트 요약 뷰';
+        rightPanel.className = 'md:col-span-7 bg-[#FAF8F5] p-6 flex flex-col justify-between transition-colors duration-300';
+        liveCard.className = 'my-3.5 p-5 rounded-2xl do-daylight-surface';
+        mainHeading.className = 'text-xl font-extrabold text-slate-900 mt-1.5 tracking-tight';
+        deltaDText.className = 'text-3xl sm:text-4xl font-extrabold text-slate-900 font-mono-num mt-1 tracking-tight';
+        statusTitle.className = 'text-sm font-extrabold text-[#002C5F]';
+        doLockPanel.classList.add('hidden');
+        parkingListPanel.classList.remove('hidden');
+      } else {
+        btnGearD.className = 'py-2 px-3 rounded-xl text-xs btn-accent-day';
+        btnGearP.className = 'py-2 px-3 rounded-xl text-xs btn-secondary-day';
+        uxBadge.textContent = 'DRIVING DO (주행 제한)';
+        uxBadge.className = 'text-[10px] font-mono-num font-bold px-2 py-0.5 rounded-full pill-cyan';
+        gearDesc.innerHTML = '현재 <strong>기어 D(주행 중)</strong> 상태입니다. 주행 안전(DO) 다크 방현 모드가 작동하며 2-Window 확장이 차단됩니다.';
+        avnGear.textContent = 'GEAR · D';
+        avnGear.className = 'px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#0082B3] text-white';
+        onewinTag.textContent = 'DRIVING · 주행 안전 다크 방현 뷰';
+        rightPanel.className = 'md:col-span-7 bg-[#070B12] text-white p-6 flex flex-col justify-between transition-colors duration-300';
+        liveCard.className = 'my-3.5 p-5 rounded-2xl do-driving-dark-surface';
+        mainHeading.className = 'text-xl font-extrabold text-white mt-1.5 tracking-tight';
+        deltaDText.className = 'text-3xl sm:text-4xl font-extrabold text-white font-mono-num mt-1 tracking-tight';
+        statusTitle.className = 'text-sm font-extrabold text-sky-300';
+        doLockPanel.classList.remove('hidden');
+        parkingListPanel.classList.add('hidden');
+      }
+
+      updateSeatBadge('row1Right', 'seat-1r-badge', 'seat-1r-mate-label');
+      updateSeatBadge('row2Left', 'seat-2l-badge', 'seat-2l-mate-label');
+      updateSeatBadge('row2Right', 'seat-2r-badge', 'seat-2r-mate-label');
+
+      const activeIds = getActiveSeatedPassengerIds();
+      const hasUnknown = Object.values(appState.seats).includes('unknown');
+      const hasBag = Object.values(appState.seats).includes('bag');
+
+      const presetBox = document.getElementById('unregistered-preset-box');
+      if (hasUnknown) presetBox.classList.remove('hidden');
+      else presetBox.classList.add('hidden');
+
+      document.getElementById('map-match-count-badge').textContent =
+        activeIds.length > 0 ? `동승 세션 ${activeIds.length}명 활성` : (hasBag ? '가방/짐 오탐지 차단됨' : '활성 동승 세션 없음');
+
+      const liveSeatChip = document.getElementById('live-card-seat-chip');
+      const activeSeatsSummary = document.getElementById('active-seats-summary');
+
+      if (hasUnknown) {
+        statusTitle.textContent = '미등록 동승자 착석 감지 — 56px 대형 프리셋 또는 Gleo 음성으로 태깅해 주세요';
+        liveSeatChip.textContent = 'SeatArea: ROW_1_RIGHT (미등록)';
+        activeSeatsSummary.textContent = '미등록 동승자 태깅 대기 중';
+      } else if (hasBag && activeIds.length === 0) {
+        statusTitle.textContent = '착석 감지됨 (안전벨트 미체결 → 가방·짐 판정으로 세션 제외)';
+        liveSeatChip.textContent = 'checkSeatBeltBuckled: FALSE';
+        activeSeatsSummary.textContent = '안전벨트 교차검증: 짐 오탐지 차단';
+      } else if (activeIds.length > 0) {
+        const primaryMate = getEffectiveStats(activeIds[0]);
+        const extraCount = activeIds.length - 1;
+        statusTitle.textContent = extraCount > 0
+          ? `동승 메이트 [${primaryMate.relation}] ${primaryMate.name}님 외 ${extraCount}명과 다중 주행 기록 중`
+          : `동승 메이트 [${primaryMate.relation}] ${primaryMate.name}님과 주행 기록 중`;
+        liveSeatChip.textContent = `동시 활성 세션: ${activeIds.length}석`;
+        activeSeatsSummary.textContent = `${activeIds.length}명 착석 + 안전벨트 체결 완료`;
+
+        const nextGoal = primaryMate.totalDistKm >= 1000 ? 3000 : (primaryMate.totalDistKm >= 500 ? 1000 : 500);
+        const goalTitle = nextGoal === 3000 ? '3,000km ‘인생 로드메이트’' : (nextGoal === 1000 ? '1,000km ‘소울 패신저’' : '500km ‘고속도로 단짝’');
+        const pct = Math.min(100, (primaryMate.totalDistKm / nextGoal) * 100);
+        document.getElementById('live-milestone-label').textContent = `다음 마일스톤 · ${goalTitle}`;
+        document.getElementById('live-milestone-pct').textContent = `${primaryMate.totalDistKm.toLocaleString()} / ${nextGoal.toLocaleString()} km (${pct.toFixed(1)}%)`;
+        document.getElementById('live-milestone-bar').style.width = `${pct}%`;
+      } else {
+        statusTitle.textContent = appState.debounceSecondsLeft > 0
+          ? '휴게소 임시 하차 디바운싱 대기 중 (세션 유지)'
+          : '현재 탑승 중인 동승 메이트가 없습니다 (단독 주행)';
+        liveSeatChip.textContent = 'All Passenger Seats Empty';
+        activeSeatsSummary.textContent = '동승석 공석 (Empty)';
+      }
+
+      const totalOdo = getCurrentTotalOdo();
+      document.getElementById('odo-total-readout').textContent = `${totalOdo.toLocaleString('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} km`;
+      document.getElementById('odo-session-readout').textContent = `+${appState.sessionDeltaKm.toFixed(1)} km (${appState.sessionDeltaMin}분)`;
+      deltaDText.textContent = `+${appState.sessionDeltaKm.toFixed(1)} km`;
+      document.getElementById('live-card-delta-t').textContent = `+${appState.sessionDeltaMin} 분`;
+
+      const carDot = document.getElementById('svg-car-dot');
+      const carGlow = document.getElementById('svg-car-glow');
+      if (carDot && carGlow) {
+        const progress = Math.min(1, appState.sessionDeltaKm / 60);
+        const cx = Math.round(115 + progress * 140);
+        const cy = Math.round(88 - progress * 60);
+        carDot.setAttribute('cx', String(cx));
+        carDot.setAttribute('cy', String(cy));
+        carGlow.setAttribute('cx', String(cx));
+        carGlow.setAttribute('cy', String(cy));
+      }
+
+      updateAmbientAndReunionUI();
+      renderDigitalTwin();
+      renderRankings();
+      renderSelectedPassengerDetails();
+      renderEndTripAndMileageView();
+      renderInstaStoryModalContent();
+    }
+
+    function updateSeatBadge(seatKey, badgeId, labelId) {
+      const val = appState.seats[seatKey];
+      const badge = document.getElementById(badgeId);
+      const label = document.getElementById(labelId);
+      if (val === 'empty') {
+        badge.textContent = 'Empty';
+        badge.className = 'text-[10px] font-mono-num font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500';
+        label.textContent = '없음';
+        label.className = 'text-slate-500';
+      } else if (val === 'bag') {
+        badge.textContent = '벨트 OFF';
+        badge.className = 'text-[10px] font-mono-num font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200';
+        label.textContent = '가방/짐 판정 (차단)';
+        label.className = 'text-rose-600';
+      } else if (val === 'unknown') {
+        badge.textContent = '미등록';
+        badge.className = 'text-[10px] font-mono-num font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200';
+        label.textContent = '미등록 동승자';
+        label.className = 'text-amber-700';
+      } else {
+        const mate = appState.passengers[val];
+        const seatDelta = getSeatDeltaKm(seatKey);
+        badge.textContent = `Occupied (+${seatDelta.toFixed(1)}km)`;
+        badge.className = 'text-[10px] font-mono-num font-bold px-2 py-0.5 rounded-full pill-emerald';
+        label.textContent = `${mate.name} (${mate.relation})`;
+        label.className = 'text-[#002C5F]';
+      }
+    }
+
+    function renderRankings() {
+      const sorted = getSortedPassengers();
+      const compactBox = document.getElementById('compact-ranking-list');
+      const wideBox = document.getElementById('wide-ranking-list');
+
+      const isDist = appState.sortBy === 'dist';
+      ['1w', '2w'].forEach((suffix) => {
+        const dBtn = document.getElementById(`btn-sort-dist-${suffix}`);
+        const tBtn = document.getElementById(`btn-sort-time-${suffix}`);
+        if (isDist) {
+          dBtn.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-[#002C5F] text-white shadow-sm';
+          tBtn.className = 'px-3 py-1 rounded-full text-[11px] font-semibold text-slate-600 hover:text-slate-900';
+        } else {
+          tBtn.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-[#002C5F] text-white shadow-sm';
+          dBtn.className = 'px-3 py-1 rounded-full text-[11px] font-semibold text-slate-600 hover:text-slate-900';
+        }
+      });
+
+      compactBox.innerHTML = sorted.map((m, idx) => `
+        <div data-select-mate="${m.id}" class="mate-row-item cursor-pointer px-3.5 py-2.5 rounded-xl border transition flex items-center justify-between ${appState.selectedMateId === m.id ? 'bg-sky-50/90 border-[#0082B3] shadow-sm' : 'bg-white border-slate-200 hover:border-slate-300'}">
+          <div class="flex items-center gap-3">
+            <span class="w-5 text-xs font-mono-num font-extrabold ${idx === 0 ? 'text-[#0082B3]' : 'text-slate-400'}">0${idx + 1}</span>
+            <div>
+              <span class="text-xs font-bold text-slate-900">${m.name}</span>
+              <span class="text-[11px] text-slate-500 ml-1.5">${m.relation}</span>
+              ${m.isCurrentlyRiding ? `<span class="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full pill-emerald">동승중 (+${m.seatDeltaKm.toFixed(1)}km)</span>` : ''}
+            </div>
+          </div>
+          <div class="text-right font-mono-num text-xs">
+            <strong class="text-[#002C5F]">${m.totalDistKm.toLocaleString()} km</strong>
+            <span class="text-[11px] text-slate-500 ml-2">${m.totalHours}h</span>
+          </div>
+        </div>
+      `).join('');
+
+      wideBox.innerHTML = sorted.map((m, idx) => `
+        <div data-select-mate="${m.id}" class="mate-row-item cursor-pointer p-3.5 rounded-2xl border transition flex items-center justify-between ${appState.selectedMateId === m.id ? 'bg-white border-[#002C5F] ring-2 ring-[#002C5F]/10 shadow-md' : 'bg-white/80 border-slate-200 hover:bg-white'}">
+          <div class="flex items-center gap-3.5">
+            <span class="text-xs font-mono-num font-extrabold ${idx === 0 ? 'text-[#0082B3]' : 'text-slate-400'}">0${idx + 1}</span>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-extrabold text-slate-900">${m.name}</span>
+                <span class="text-[11px] text-slate-500">${m.relation}</span>
+                ${m.isCurrentlyRiding ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full pill-emerald">LIVE</span>' : ''}
+              </div>
+              <p class="text-[11px] text-slate-500 truncate max-w-[200px] mt-0.5">${m.persona}</p>
+            </div>
+          </div>
+          <div class="text-right font-mono-num">
+            <strong class="text-sm font-extrabold text-[#002C5F]">
+              ${appState.sortBy === 'dist' ? `${m.totalDistKm.toLocaleString()} km` : `${m.totalHours} h`}
+            </strong>
+            <span class="block text-[10px] text-slate-500">
+              ${appState.sortBy === 'dist' ? `${m.totalHours} 시간` : `${m.totalDistKm.toLocaleString()} km`}
+            </span>
+          </div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.mate-row-item').forEach((el) => {
+        el.addEventListener('click', () => {
+          const id = el.getAttribute('data-select-mate');
+          if (id) {
+            appState.selectedMateId = id;
+            document.getElementById('mobile-mate-select').value = id;
+            renderAll();
+          }
+        });
+      });
+    }
+
+    function renderSelectedPassengerDetails() {
+      const m = getEffectiveStats(appState.selectedMateId);
+      const busanTrips = (m.totalDistKm / 800).toFixed(1);
+      const movieCount = Math.round(m.totalHours / 2);
+
+      document.getElementById('detail-persona-badge').textContent = `🏅 ${m.persona}`;
+      document.getElementById('detail-seat-pref').textContent = `주요 착석: ${m.seatPref}`;
+      document.getElementById('detail-mate-headline').textContent =
+        `올해 ${m.name} 님과 함께 달린 ${m.totalDistKm.toLocaleString()}km는 서울-부산을 ${busanTrips}회 왕복한 거리입니다!`;
+      document.getElementById('detail-mate-subcopy').innerHTML =
+        `${m.name} 님과 차 안에서 총 <strong>${m.totalHours}시간(영화 ${movieCount}편 분량)</strong>의 대화를 나눴습니다. ${m.personaDesc}`;
+
+      document.getElementById('detail-stat-dist').textContent = `${m.totalDistKm.toLocaleString()} km`;
+      document.getElementById('detail-stat-time').textContent = `${m.totalHours} 시간`;
+      document.getElementById('detail-stat-trips').textContent = `${m.trips} 회`;
+
+      document.getElementById('detail-best-trip-title').textContent = m.bestTripTitle;
+      document.getElementById('detail-best-trip-waypoints').textContent = m.bestTripWaypoints;
+      document.getElementById('detail-poi-source-tag').textContent = m.poiSource;
+
+      const milestones = [
+        { km: 100, title: '첫 동행의 시작' },
+        { km: 500, title: '고속도로 단짝' },
+        { km: 1000, title: '소울 패신저' },
+        { km: 3000, title: '인생 로드메이트' }
+      ];
+      let unlockedCount = 0;
+      const badgeHtml = milestones.map((ms) => {
+        const unlocked = m.totalDistKm >= ms.km;
+        if (unlocked) unlockedCount++;
+        return `
+          <div class="p-2.5 rounded-xl border text-center ${unlocked ? 'bg-white border-[#0082B3] text-slate-900 shadow-sm' : 'bg-slate-100/70 border-slate-200 text-slate-400'}">
+            <div class="text-[11px] font-mono-num font-extrabold ${unlocked ? 'text-[#002C5F]' : 'text-slate-400'}">${ms.km.toLocaleString()}</div>
+            <div class="text-[10px] font-medium truncate mt-0.5">${ms.title}</div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('milestone-badge-grid').innerHTML = badgeHtml;
+      document.getElementById('selected-mate-milestone-count').textContent = `${unlockedCount} / 4 해금됨`;
+
+      document.getElementById('ticket-total-dist').textContent = `${m.totalDistKm.toLocaleString()} KM`;
+      document.getElementById('ticket-dest-code').textContent = m.destCode;
+      document.getElementById('ticket-dest-name').textContent = appState.privacyMaskEnabled
+        ? `${m.destName} (상세번지 감춤)`
+        : `${m.destName} (전체공개)`;
+      document.getElementById('ticket-origin-sub').textContent = appState.privacyMaskEnabled
+        ? '울산 (출발 상세주소 감춤)'
+        : '울산 남구 무거동 자택';
+      document.getElementById('ticket-privacy-badge').textContent = appState.privacyMaskEnabled
+        ? '🔒 출발·도착 안심가림'
+        : '🌐 전체 경로 공개';
+      document.getElementById('ticket-passenger-name').textContent = `${m.name} (${m.relation})`;
+      document.getElementById('ticket-passenger-time').textContent = `총 ${m.totalHours} 시간 동행`;
+      document.getElementById('ticket-persona-title').textContent = `🏅 ${m.persona} (서울-부산 ${busanTrips}회 왕복)`;
+
+      if (m.playlist && m.playlist.length > 0) {
+        document.getElementById('ticket-bgm-summary').textContent =
+          `${m.playlist[0].artist} - ${m.playlist[0].title} 외 ${m.playlist.length - 1}곡 함께 감상`;
+      }
+    }
+
+    function renderEndTripAndMileageView() {
+      const m = getEffectiveStats(appState.selectedMateId);
+      const todayPts = getTodayEarnedPoints();
+      const driverTotal = getDriverTotalPoints();
+      const mateTotal = getMateTotalPoints(appState.selectedMateId);
+
+      document.getElementById('endtrip-mate-badge').textContent = `동승 메이트: ${m.name} (${m.relation})`;
+      document.getElementById('endtrip-km-val').textContent = `${appState.sessionDeltaKm.toFixed(1)} km`;
+      document.getElementById('endtrip-min-val').textContent = `${appState.sessionDeltaMin} 분`;
+
+      // True Polyline Clipping (Hides start & end 15% paths completely when masked)
+      const privacyZones = document.getElementById('svg-privacy-zones');
+      const exactPins = document.getElementById('svg-exact-pins');
+      const startSeg = document.getElementById('svg-start-segment');
+      const endSeg = document.getElementById('svg-end-segment');
+      const routeDesc = document.getElementById('endtrip-route-desc');
+      const privacyStatus = document.getElementById('endtrip-privacy-status');
+
+      if (appState.privacyMaskEnabled) {
+        privacyZones.classList.remove('hidden');
+        exactPins.classList.add('hidden');
+        startSeg.classList.add('hidden');
+        endSeg.classList.add('hidden');
+        routeDesc.textContent = '출발/도착 15%(500m) 폴리라인이 물리적으로 제거되어 집·숙소 노출을 원천 차단합니다.';
+        privacyStatus.textContent = '🔒 시작·끝 안심절삭';
+        privacyStatus.className = 'text-xs font-extrabold text-emerald-700';
+      } else {
+        privacyZones.classList.add('hidden');
+        exactPins.classList.remove('hidden');
+        startSeg.classList.remove('hidden');
+        endSeg.classList.remove('hidden');
+        routeDesc.textContent = '주의: 현재 출발지와 도착지 상세 폴리라인이 모두 표시됩니다.';
+        privacyStatus.textContent = '🌐 전체 경로 표시';
+        privacyStatus.className = 'text-xs font-extrabold text-amber-700';
+      }
+
+      // Render Playlist with Interactive Audio Synthesis Preview
+      const plBox = document.getElementById('endtrip-playlist-box');
+      const tracks = m.playlist || [];
+      document.getElementById('playlist-track-count').textContent = `${tracks.length}곡 기록됨`;
+      plBox.innerHTML = tracks.map((t, idx) => `
+        <div data-track-idx="${idx}" class="playlist-track-row cursor-pointer p-2.5 rounded-xl bg-slate-50 hover:bg-sky-50 border border-slate-200/80 transition flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="w-6 h-6 rounded-lg bg-[#002C5F] text-white text-[11px] font-mono-num font-bold flex items-center justify-center shrink-0">
+              ▶
+            </span>
+            <div class="min-w-0">
+              <p class="text-xs font-extrabold text-slate-900 truncate">${t.title} — <span class="font-semibold text-slate-600">${t.artist}</span></p>
+              <p class="text-[10px] text-[#0082B3] font-medium truncate">📍 ${t.point}</p>
+            </div>
+          </div>
+          <span class="text-[11px] font-mono-num text-slate-500 shrink-0">${t.time}</span>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.playlist-track-row').forEach((row) => {
+        row.addEventListener('click', () => {
+          const idx = Number(row.getAttribute('data-track-idx') || 0);
+          const tr = tracks[idx];
+          if (tr) {
+            playTrackPreviewChime(tr.freq, `${tr.artist} - ${tr.title}`);
+            document.getElementById('mileage-action-feedback').textContent =
+              `🎵 [인카 오디오 미리듣기] '${tr.artist} - ${tr.title}' (${tr.point}에서 재생된 곡)`;
+          }
+        });
+      });
+
+      // Right Column: Dual Mileage Wallet & Transfer State
+      document.getElementById('wallet-driver-total').textContent = `${driverTotal.toLocaleString()} P`;
+      document.getElementById('wallet-driver-today').textContent = appState.isTodayTransferred
+        ? `오늘 적립 +${todayPts}P + 동승자 양도 +${appState.mateTransferredPoints}P`
+        : `오늘 주행 동시 적립: +${todayPts.toLocaleString()} P`;
+
+      document.getElementById('wallet-mate-label').textContent = `PASSENGER · ${m.name} 님`;
+      document.getElementById('wallet-mate-total').textContent = `${mateTotal.toLocaleString()} P`;
+      document.getElementById('wallet-mate-today').textContent = appState.isTodayTransferred
+        ? `오늘 마일리지(${todayPts}P) 운전자 양도 완료`
+        : `오늘 동시 적립: +${todayPts.toLocaleString()} P`;
+
+      const transferBtn = document.getElementById('btn-transfer-mileage');
+      const transferDesc = document.getElementById('transfer-status-desc');
+      if (appState.isTodayTransferred) {
+        transferBtn.disabled = true;
+        transferBtn.textContent = '✅ 운전자에게 양도 완료';
+        transferDesc.innerHTML = `${m.name} 님이 오늘 적립된 <strong class="text-[#002C5F]">+${todayPts.toLocaleString()} P</strong>를 운전자 지갑으로 양도했습니다!`;
+      } else {
+        transferBtn.disabled = false;
+        transferBtn.textContent = `오늘 마일리지 양도 (+${todayPts.toLocaleString()} P) →`;
+        transferDesc.innerHTML = `기름값·운전 수고 보답으로 오늘 받은 <strong class="text-[#002C5F]">+${todayPts.toLocaleString()} P</strong>를 운전자에게 선물합니다.`;
+      }
+    }
+
+    function speakGleoBriefing(text) {
+      document.getElementById('gleo-response-text').textContent = text;
+      try {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = 'ko-KR';
+          utter.rate = 1.05;
+          window.speechSynthesis.speak(utter);
+        }
+      } catch (e) {}
+    }
+
+    function handleSeatStateChange(seatKey, selectId, newValue) {
+      appState.seats[seatKey] = newValue;
+      const selectEl = document.getElementById(selectId);
+      if (selectEl) selectEl.value = newValue;
+
+      if (newValue.startsWith('p')) {
+        // Record independent D_start for mid-trip boarding
+        appState.seatStartOdo[seatKey] = (seatKey === 'row1Right' && appState.sessionDeltaKm === 18.4)
+          ? appState.baseOdometerKm
+          : getCurrentTotalOdo();
+        const mate = appState.passengers[newValue];
+        appState.selectedMateId = newValue;
+        appendSdkLog(`Seat(${seatKey}): ${mate.name} 탑승 (기준 Odo D_start=${appState.seatStartOdo[seatKey].toFixed(1)}km · 앰비언트 ${mate.ambientName} 연동)`);
+        if (mate.daysSinceLastRide >= 30) {
+          speakGleoBriefing(`${mate.name} 님과 ${mate.daysSinceLastRide}일 만의 반가운 재회네요! 맞춤 선셋 코랄 무드 조명으로 전환합니다.`);
+        }
+      } else if (newValue === 'bag') {
+        appState.seatStartOdo[seatKey] = null;
+        appendSdkLog(`Seat(${seatKey}): Occupied && !SeatBelt → 가방/짐 오탐지 차단 완료`);
+      } else if (newValue === 'empty') {
+        appState.seatStartOdo[seatKey] = null;
+        appendSdkLog(`Seat(${seatKey}): Empty → 3분 디바운싱 대기 진입`);
+      } else {
+        appState.seatStartOdo[seatKey] = getCurrentTotalOdo();
+        appendSdkLog(`Seat(${seatKey}): 미등록 동승자 감지 → 56px 원터치 프리셋 활성화`);
+      }
+      renderAll();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      appendSdkLog('Vehicle SDK v2.3.2 · checkSeatOccupancyCapabilities() → OK');
+      appendSdkLog('Vehicle SDK v2.3.2 · checkSeatBeltBuckledCapabilities() → OK');
+      appendSdkLog('FusedLocation SDK v1.1.2 · Callback Registered');
+
+      document.getElementById('tab-1win').addEventListener('click', () => { appState.viewMode = '1win'; renderAll(); });
+      document.getElementById('tab-2win').addEventListener('click', () => {
+        if (appState.gear === 'D') return;
+        appState.viewMode = '2win';
+        renderAll();
+      });
+      document.getElementById('tab-endtrip').addEventListener('click', () => { appState.viewMode = 'endtrip'; renderAll(); });
+      document.getElementById('tab-mobile').addEventListener('click', () => { appState.viewMode = 'mobile'; renderAll(); });
+      document.getElementById('tab-arch').addEventListener('click', () => { appState.viewMode = 'arch'; renderAll(); });
+
+      // Interactive Digital Twin SVG Seat Clicks
+      document.getElementById('twin-seat-1r').addEventListener('click', () => {
+        const order = ['p1', 'p2', 'bag', 'unknown', 'empty'];
+        const next = order[(order.indexOf(appState.seats.row1Right) + 1) % order.length];
+        handleSeatStateChange('row1Right', 'select-seat-1r', next);
+      });
+      document.getElementById('twin-seat-2l').addEventListener('click', () => {
+        const next = appState.seats.row2Left === 'empty' ? 'p3' : (appState.seats.row2Left === 'p3' ? 'bag' : 'empty');
+        handleSeatStateChange('row2Left', 'select-seat-2l', next);
+      });
+      document.getElementById('twin-seat-2r').addEventListener('click', () => {
+        const next = appState.seats.row2Right === 'empty' ? 'p4' : 'empty';
+        handleSeatStateChange('row2Right', 'select-seat-2r', next);
+      });
+
+      // Door Open/Close Toggle
+      document.getElementById('btn-toggle-door').addEventListener('click', () => {
+        appState.doorsOpen = !appState.doorsOpen;
+        appendSdkLog(`DoorListener.onDoorUpdated() → ${appState.doorsOpen ? 'OPEN (도어 개방 애니메이션)' : 'CLOSED'}`);
+        renderAll();
+      });
+
+      // 3-Minute Rest Stop Debounce Simulator
+      document.getElementById('btn-rest-stop-test').addEventListener('click', () => {
+        if (appState.debounceIntervalId) clearInterval(appState.debounceIntervalId);
+        appState.gear = 'P';
+        appState.doorsOpen = true;
+        appState.debounceSecondsLeft = 180;
+        const badge = document.getElementById('debounce-timer-badge');
+        badge.classList.remove('hidden');
+        appendSdkLog('휴게소 임시 하차 감지: 정차(P) + 좌석 Empty → 180초(3분) 디바운싱 타이머 시작 (세션 유지)');
+
+        appState.debounceIntervalId = setInterval(() => {
+          appState.debounceSecondsLeft = Math.max(0, appState.debounceSecondsLeft - 1);
+          const m = String(Math.floor(appState.debounceSecondsLeft / 60)).padStart(2, '0');
+          const s = String(appState.debounceSecondsLeft % 60).padStart(2, '0');
+          badge.textContent = `⏱️ ${m}:${s}`;
+          if (appState.debounceSecondsLeft <= 0) {
+            clearInterval(appState.debounceIntervalId);
+            badge.classList.add('hidden');
+          }
+        }, 1000);
+        renderAll();
+      });
+
+      // Suspend / Ignition OFF Lifecycle Cleanup Button
+      document.getElementById('btn-suspend-ignition').addEventListener('click', () => {
+        if (appState.debounceIntervalId) clearInterval(appState.debounceIntervalId);
+        document.getElementById('sdk-lifecycle-status').textContent = 'SUSPENDED · ALL LISTENERS RELEASED';
+        document.getElementById('sdk-lifecycle-status').className = 'text-rose-600 font-bold';
+        appendSdkLog('시동 OFF (Suspend 진입): unregisterSeatOccupancy(), unregisterDistanceDriven(), FusedLocation.release() 일괄 호출 완료 (메모리 누수 방지)');
+        speakGleoBriefing('차량 시동이 꺼져 모든 센서 리스너를 안전하게 해제하고 세션을 최종 저장했습니다.');
+      });
+
+      // Instagram 9:16 Story Preview Modal Controls
+      document.getElementById('btn-open-insta-modal').addEventListener('click', () => {
+        document.getElementById('modal-insta-preview').classList.remove('hidden');
+        renderInstaStoryModalContent();
+      });
+      document.getElementById('btn-close-insta-modal').addEventListener('click', () => {
+        document.getElementById('modal-insta-preview').classList.add('hidden');
+      });
+      document.getElementById('btn-modal-card-pass').addEventListener('click', () => {
+        appState.instaStoryMode = 'pass';
+        renderInstaStoryModalContent();
+      });
+      document.getElementById('btn-modal-card-recap').addEventListener('click', () => {
+        appState.instaStoryMode = 'recap';
+        renderInstaStoryModalContent();
+      });
+
+      // Top End-of-Trip Trigger Button
+      document.getElementById('btn-trigger-end-trip').addEventListener('click', () => {
+        appState.gear = 'P';
+        appState.viewMode = 'endtrip';
+        const todayPts = getTodayEarnedPoints();
+        appendSdkLog(`운행 종료(Session Finalized): 주행 ${appState.sessionDeltaKm.toFixed(1)}km · 운전자/동승자 각 +${todayPts}P 동시 적립 및 플리 아카이빙 완료`);
+        speakGleoBriefing(`오늘의 운행이 종료되었습니다. 총 ${appState.sessionDeltaKm.toFixed(1)}킬로미터를 주행하여 운전자와 동승자에게 각각 ${todayPts} 마일리지가 적립되었습니다.`);
+        renderAll();
+      });
+
+      // Privacy Masking Checkbox
+      document.getElementById('chk-privacy-mask').addEventListener('change', (e) => {
+        appState.privacyMaskEnabled = e.target.checked;
+        appendSdkLog(`프라이버시 경로 폴리라인 절삭: ${appState.privacyMaskEnabled ? '양 끝단 15%(500m) 좌표 제거 ON' : '전체 경로 표시'}`);
+        renderAll();
+      });
+
+      // Share Safe Log Button -> Opens 9:16 Insta Recap Modal Directly!
+      document.getElementById('btn-share-safe-log').addEventListener('click', () => {
+        appState.instaStoryMode = 'recap';
+        document.getElementById('modal-insta-preview').classList.remove('hidden');
+        renderInstaStoryModalContent();
+        appendSdkLog('Safe Trip Share: 9:16 인스타 스토리 리캡 프리뷰 모달 오픈 (양 끝단 500m 절삭 적용)');
+      });
+
+      // Transfer Today's Mileage to Driver Button
+      document.getElementById('btn-transfer-mileage').addEventListener('click', () => {
+        if (appState.isTodayTransferred) return;
+        const todayPts = getTodayEarnedPoints();
+        const m = getEffectiveStats(appState.selectedMateId);
+        appState.isTodayTransferred = true;
+        appState.mateTransferredPoints += todayPts;
+        document.getElementById('mileage-action-feedback').textContent =
+          `🎁 ${m.name} 님이 오늘의 동승 마일리지 +${todayPts.toLocaleString()} P를 운전자에게 양도했습니다! (운전자 총 ${getDriverTotalPoints().toLocaleString()} P)`;
+        appendSdkLog(`Mileage Transfer: 동승자(${m.name}) → 운전자 +${todayPts}P 양도 완료`);
+        speakGleoBriefing(`${m.name} 님이 오늘 적립된 ${todayPts} 마일리지를 운전자님께 양도했습니다.`);
+        renderAll();
+      });
+
+      // Mileage Partner Redemption Buttons
+      document.querySelectorAll('.redeem-partner-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const itemName = btn.getAttribute('data-redeem-name');
+          const cost = Number(btn.getAttribute('data-redeem-cost') || 0);
+          const currentDriverPts = getDriverTotalPoints();
+          if (currentDriverPts < cost) {
+            document.getElementById('mileage-action-feedback').textContent =
+              `⚠️ 마일리지가 부족합니다. (현재 ${currentDriverPts.toLocaleString()} P / 필요 ${cost.toLocaleString()} P)`;
+            return;
+          }
+          appState.driverBasePoints -= cost;
+          const pinCode = Math.floor(100000 + Math.random() * 900000);
+          document.getElementById('mileage-action-feedback').textContent =
+            `✅ [${itemName}] 발급 완료! (-${cost.toLocaleString()} P 차감 · 모바일 바코드 PIN: ${pinCode}) — 잔여 ${getDriverTotalPoints().toLocaleString()} P`;
+          appendSdkLog(`Mileage Redeemed: ${itemName} (-${cost}P) 바우처 발급 완료`);
+          renderAll();
+        });
+      });
+
+      document.getElementById('btn-gear-p').addEventListener('click', () => {
+        appState.gear = 'P';
+        appendSdkLog('CarUxRestrictions → BASELINE (정차 잠금 해제 · 주간 웜 아이보리 복귀)');
+        renderAll();
+      });
+      document.getElementById('btn-gear-d').addEventListener('click', () => {
+        appState.gear = 'D';
+        appState.viewMode = '1win';
+        appState.doorsOpen = false;
+        appendSdkLog('CarUxRestrictions → DRIVING DO 활성 (주행 다크 방현 모드 전환 & 2-Window 잠금)');
+        renderAll();
+      });
+
+      document.getElementById('select-seat-1r').addEventListener('change', (e) => {
+        handleSeatStateChange('row1Right', 'select-seat-1r', e.target.value);
+      });
+      document.getElementById('select-seat-2l').addEventListener('change', (e) => {
+        handleSeatStateChange('row2Left', 'select-seat-2l', e.target.value);
+      });
+      document.getElementById('select-seat-2r').addEventListener('change', (e) => {
+        handleSeatStateChange('row2Right', 'select-seat-2r', e.target.value);
+      });
+
+      document.querySelectorAll('.preset-tag-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetMate = btn.getAttribute('data-preset-mate');
+          if (targetMate) {
+            handleSeatStateChange('row1Right', 'select-seat-1r', targetMate);
+            const mateName = appState.passengers[targetMate].name;
+            speakGleoBriefing(`조수석 동승자를 ${mateName} 님으로 기록했습니다.`);
+          }
+        });
+      });
+
+      function advanceOdometer(deltaKm, deltaMin, logNote) {
+        appState.sessionDeltaKm = Number((appState.sessionDeltaKm + deltaKm).toFixed(1));
+        appState.sessionDeltaMin += deltaMin;
+        appState.isTodayTransferred = false;
+        if (!appState.isOnline) {
+          appState.offlineQueueCount += 1;
+          appendSdkLog(`[오프라인 Room SQLite 캐싱 #${appState.offlineQueueCount}] ΔD +${deltaKm}km 로컬 트랜잭션 저장됨`);
+        } else {
+          appendSdkLog(logNote);
+        }
+        renderAll();
+      }
+
+      document.getElementById('btn-drive-200m').addEventListener('click', () => {
+        document.getElementById('trajectory-stage-badge').textContent = 'ΔD≥200m 검증 완료';
+        advanceOdometer(0.2, 1, 'DistanceDrivenListener: ΔD +0.2km (2차 궤적 검증 통과 · 마일리지 +2P 동시 적립)');
+      });
+
+      document.getElementById('btn-drive-5km').addEventListener('click', () => {
+        advanceOdometer(5.0, 7, 'Odometer: 좌석별 독립 차분 ΔD +5.0km, ΔT +7분 누적 (각 +50P)');
+      });
+
+      document.getElementById('btn-drive-25km').addEventListener('click', () => {
+        advanceOdometer(25.0, 30, 'Odometer: 장거리 차분 ΔD +25.0km, ΔT +30분 누적 (각 +250P)');
+      });
+
+      document.getElementById('btn-toggle-network').addEventListener('click', (e) => {
+        appState.isOnline = !appState.isOnline;
+        const btn = e.currentTarget;
+        if (appState.isOnline) {
+          btn.textContent = '🌐 Online 동기화 중';
+          appendSdkLog(`네트워크 복구: Room SQLite 로컬 큐(${appState.offlineQueueCount}건) 클라우드 일괄 배치 동기화 완료`);
+          appState.offlineQueueCount = 0;
+        } else {
+          btn.textContent = '🚇 오프라인 (Room 캐싱)';
+          appendSdkLog('터널/지하 진입(네트워크 단절): 로컬 Room SQLite 오프라인 큐 모드 전환');
+        }
+        renderAll();
+      });
+
+      document.getElementById('btn-clear-log').addEventListener('click', () => {
+        document.getElementById('sdk-mini-log').innerHTML = '';
+      });
+
+      ['1w', '2w'].forEach((suffix) => {
+        document.getElementById(`btn-sort-dist-${suffix}`).addEventListener('click', () => {
+          appState.sortBy = 'dist';
+          renderAll();
+        });
+        document.getElementById(`btn-sort-time-${suffix}`).addEventListener('click', () => {
+          appState.sortBy = 'time';
+          renderAll();
+        });
+      });
+
+      document.getElementById('btn-expand-to-2win').addEventListener('click', () => {
+        if (appState.gear === 'D') return;
+        appState.viewMode = '2win';
+        appendSdkLog('Window Bar 제스처 확장 → 2-Window 연간 리포트 전환');
+        renderAll();
+      });
+      document.getElementById('btn-open-wide-report').addEventListener('click', () => {
+        appState.viewMode = '2win';
+        appendSdkLog('연간 리포트 와이드 뷰 실행');
+        renderAll();
+      });
+      document.getElementById('btn-open-qr-share').addEventListener('click', () => {
+        appState.instaStoryMode = 'pass';
+        document.getElementById('modal-insta-preview').classList.remove('hidden');
+        renderInstaStoryModalContent();
+        appendSdkLog('QR Share Ticket 9:16 인스타 스토리 프리뷰 모달 오픈');
+      });
+      document.getElementById('btn-jump-mobile-ticket').addEventListener('click', () => {
+        appState.viewMode = 'mobile';
+        renderAll();
+      });
+
+      document.getElementById('btn-redrive-route').addEventListener('click', () => {
+        const m = getEffectiveStats(appState.selectedMateId);
+        document.getElementById('navi-active-dest-title').textContent = `목적지: ${m.destName} (추억의 코스 재주행)`;
+        document.getElementById('navi-active-dest-sub').textContent = `NaviHelper.requestRouteWithWaypoints() 실행`;
+        document.getElementById('redrive-feedback-msg').textContent = `Pleos 순정 내비게이션으로 [${m.destName}] 길안내 시작됨`;
+        appendSdkLog(`NaviHelper.requestRouteWithWaypoints() → ${m.bestTripTitle}`);
+        speakGleoBriefing(`${m.name} 님과 함께했던 ${m.destName} 추억의 코스로 길안내를 시작합니다.`);
+      });
+
+      document.getElementById('gleo-btn-stats').addEventListener('click', () => {
+        const topDist = getSortedPassengers()[0];
+        const msg = `[Gleo 브리핑] 올해 가장 먼 거리를 함께 달린 소울 패신저는 ${topDist.name} 님으로 총 ${topDist.totalDistKm.toLocaleString()}km를 동행했습니다.`;
+        appendSdkLog('Gleo Action (service): GET_TOP_CORIDER_STATS');
+        speakGleoBriefing(msg);
+      });
+
+      document.getElementById('gleo-btn-tag').addEventListener('click', () => {
+        handleSeatStateChange('row1Right', 'select-seat-1r', 'p3');
+        const msg = '[Gleo 태깅] 조수석(ROW_1_RIGHT) 동승자를 대학 동기 이민수 님으로 기록했습니다.';
+        appendSdkLog('Gleo Action (service): TAG_CURRENT_PASSENGER("이민수")');
+        speakGleoBriefing(msg);
+      });
+
+      document.getElementById('gleo-btn-route').addEventListener('click', () => {
+        appState.selectedMateId = 'p1';
+        appState.gear = 'P';
+        appState.viewMode = '2win';
+        const m = getEffectiveStats('p1');
+        const msg = `[Gleo 경로 실행] ${m.name} 님과의 '${m.bestTripTitle}' 코스로 길안내를 시작합니다.`;
+        appendSdkLog('Gleo Action (activity): START_MEMORY_ROUTE');
+        document.getElementById('redrive-feedback-msg').textContent = `Gleo 음성 명령으로 [${m.destName}] 길안내 시작됨`;
+        speakGleoBriefing(msg);
+        renderAll();
+      });
+
+      document.getElementById('mobile-mate-select').addEventListener('change', (e) => {
+        appState.selectedMateId = e.target.value;
+        renderAll();
+      });
+
+      document.getElementById('btn-share-insta').addEventListener('click', () => {
+        appState.instaStoryMode = 'pass';
+        document.getElementById('modal-insta-preview').classList.remove('hidden');
+        renderInstaStoryModalContent();
+        appendSdkLog(`Companion App: 9:16 인스타 스토리 보딩패스 프리뷰 모달 호출`);
+      });
+
+      document.getElementById('btn-copy-ticket-link').addEventListener('click', () => {
+        const m = getEffectiveStats(appState.selectedMateId);
+        const shareUrl = `https://usualy.auto-hmg.io/pass/2026/${m.id}`;
+        try {
+          const tempInput = document.createElement('input');
+          tempInput.value = shareUrl;
+          document.body.appendChild(tempInput);
+          tempInput.select();
+          document.execCommand('copy');
+          document.body.removeChild(tempInput);
+        } catch (err) {}
+        document.getElementById('mobile-share-feedback').textContent =
+          `보딩패스 URL(${shareUrl}) 복사 완료`;
+      });
+
+      document.getElementById('btn-location-popup-test').addEventListener('click', () => {
+        document.getElementById('modal-location-blocked').classList.remove('hidden');
+        appendSdkLog('FusedLocation.showLocationAccessBlockedPopup() 호출');
+      });
+      document.getElementById('btn-close-loc-modal').addEventListener('click', () => {
+        document.getElementById('modal-location-blocked').classList.add('hidden');
+        appendSdkLog('위치 권한 허용 → FusedLocation 정상 수신');
+      });
+
+      document.getElementById('btn-run-demo').addEventListener('click', () => {
+        appState.viewMode = '1win';
+        appState.gear = 'D';
+        handleSeatStateChange('row1Right', 'select-seat-1r', 'p2');
+        appendSdkLog('▶ [Step A] 조수석 박영희 탑승 (45일 만의 재회 토스트 + 선셋 코랄 앰비언트 연동)');
+        appendSdkLog('▶ [Step B] 주행 안전(Gear D) 다크 방현 뷰 전환 완료');
+        renderAll();
+
+        setTimeout(() => {
+          handleSeatStateChange('row2Left', 'select-seat-2l', 'p3');
+          advanceOdometer(15.0, 20, '▶ [Step C-1] 2열 좌측 이민수 중간 합류 및 좌석별 독립 차분(+15.0km) 누적');
+        }, 1800);
+
+        setTimeout(() => {
+          appState.gear = 'P';
+          appState.viewMode = 'endtrip';
+          appendSdkLog('▶ [Step C-2] 기어 P 전환 및 오늘의 운행 종료(500m 폴리라인 절삭·플리·마일리지 양도) 오픈');
+          renderAll();
+        }, 3600);
+      });
+
+      renderAll();
+    });
+  </script>
+</body>
+</html>
