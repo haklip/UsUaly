@@ -1,4 +1,6 @@
 # 🚘 UsUaly (유즐리) — Co-Ride Wrapped
+> 🚀 **웹 브라우저 즉시 시연 데모 (Live HMI & Virtual Console)**: [https://haklip.github.io/UsUaly/UsUaly_V1.html](https://haklip.github.io/UsUaly/UsUaly_V1.html)
+> *(별도 설치 없이 위 링크를 클릭하면 브라우저에서 좌석 센서·도어·DTW 궤적 매칭 및 보딩패스 생성을 즉시 테스트하실 수 있습니다.)*
 
 > **“평범한 우리의 일상이 특별한 기록이 된다 (US + USUALLY)”**
 >
